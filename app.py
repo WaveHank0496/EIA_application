@@ -50,6 +50,27 @@ def sign():
     return jsonify({"qr_payload": qr_payload})
 
 
+@app.get("/api/shop")
+def get_shop():
+    token = request.args.get("token")
+    if not token:
+        return jsonify({"error": "missing_token"}), 400
+
+    shop_map = {
+        os.environ.get("SHOP_TOKEN_1"): "shop_1",
+        os.environ.get("SHOP_TOKEN_2"): "shop_2",
+        os.environ.get("SHOP_TOKEN_3"): "shop_3",
+        os.environ.get("SHOP_TOKEN_4"): "shop_4",
+        os.environ.get("SHOP_TOKEN_5"): "shop_5",
+    }
+
+    shop_id = shop_map.get(token)
+    if not shop_id:
+        return jsonify({"error": "invalid_token"}), 404
+
+    return jsonify({"shop_id": shop_id})
+
+
 @app.get("/api/verify")
 def verify():
     encoded = request.args.get("data", "")
