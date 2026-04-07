@@ -12,7 +12,7 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.exceptions import InvalidTag
 
 app = Flask(__name__)
-CORS(app, origins=["https://yourname.github.io"])
+CORS(app, origins=["https://wavehank0496.github.io"])
 
 
 def get_key() -> bytes:
