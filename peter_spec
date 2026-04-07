@@ -1,4 +1,4 @@
-# 集點系統技術規格文件 v1.0
+# 集點系統技術規格文件 v1.1
 
 ## 系統架構
 ```
@@ -38,12 +38,12 @@ JSON 結構：
 ```json
 {
   "shop_1": {
-    "points": 2,
-    "last_stamp": "2024-01-15T10:30:00Z"
+    "stamped": true,
+    "timestamp": "2024-01-15T10:30:00Z"
   },
   "shop_3": {
-    "points": 1,
-    "last_stamp": "2024-01-15T14:20:00Z"
+    "stamped": true,
+    "timestamp": "2024-01-15T14:20:00Z"
   }
 }
 ```
@@ -51,14 +51,14 @@ JSON 結構：
 注意事項：
 - 只存有集過點的店家
 - 時間戳一律用 UTC，格式 ISO 8601
-- 同一家店同一天只能集一次點（前端擋）
+- 同一家店只能集一次點，集過之後永遠鎖定（除非使用者手動清 Cookie）
 
 ### 集點邏輯
 1. 從 URL 取得 shop id
 2. 讀取 `stamp_data` Cookie，Base64 decode
-3. 檢查該店家今天是否已集點，是的話顯示「今日已集點」
-4. 否的話把該店家 points +1，更新 last_stamp，Base64 encode 存回 Cookie
-5. 檢查總共有幾家 points >= 1，達到 3 家顯示「兌換」按鈕
+3. 檢查該店家是否已有記錄，有的話顯示「已集點」，流程結束
+4. 否的話把該店家寫入 Cookie，stamped: true，timestamp 填當下時間（UTC）
+5. 檢查 Cookie 裡總共有幾家店，達到 3 家顯示「兌換」按鈕
 
 ### 兌換流程
 1. 使用者點「兌換」
@@ -72,8 +72,8 @@ Content-Type: application/json
 
 {
   "stamps": {
-    "shop_1": { "points": 2, "last_stamp": "2024-01-15T10:30:00Z" },
-    "shop_3": { "points": 1, "last_stamp": "2024-01-15T14:20:00Z" }
+    "shop_1": { "stamped": true, "timestamp": "2024-01-15T10:30:00Z" },
+    "shop_3": { "stamped": true, "timestamp": "2024-01-15T14:20:00Z" }
   }
 }
 ```
@@ -81,7 +81,7 @@ Content-Type: application/json
 回傳格式：
 ```json
 {
-  "qr_payload": "Base64字串.簽章字串"
+  "qr_payload": "Base64字串.Base64簽章"
 }
 ```
 
@@ -106,15 +106,15 @@ Request：
 ```json
 {
   "stamps": {
-    "shop_1": { "points": 2, "last_stamp": "2024-01-15T10:30:00Z" },
-    "shop_3": { "points": 1, "last_stamp": "2024-01-15T14:20:00Z" }
+    "shop_1": { "stamped": true, "timestamp": "2024-01-15T10:30:00Z" },
+    "shop_3": { "stamped": true, "timestamp": "2024-01-15T14:20:00Z" }
   }
 }
 ```
 
 處理邏輯：
 1. 驗證 stamps 欄位存在
-2. 確認至少 3 家店有資料
+2. 確認至少 3 家店有資料且 stamped 皆為 true
 3. 把 stamps JSON 序列化為字串（key 排序，確保唯一性）
 4. 用 Private Key 做 ECDSA 簽章
 5. 回傳 payload
@@ -138,7 +138,8 @@ GET /api/verify?data=xxxxx&sig=xxxxx
 1. 用 Public Key 驗簽
 2. decode data，取出各店家時間戳
 3. 檢查所有時間戳在 5 分鐘內（防重放攻擊）
-4. 回傳結果
+4. 確認至少 3 家店 stamped 為 true
+5. 回傳結果
 
 Response 成功：
 ```json
@@ -161,7 +162,7 @@ reason 可能值：`invalid_signature` / `expired` / `insufficient_stamps`
 ### 金鑰規格
 - 演算法：ECDSA P-256
 - Private Key 存在 Render 的環境變數，不可 commit 進 git
-- Public Key 事先給樹莓派那組
+- Public Key 事先提供給樹莓派那組
 
 ---
 
@@ -181,6 +182,9 @@ reason 可能值：`invalid_signature` / `expired` / `insufficient_stamps`
 
 ## 重要限制
 
-- 同一張兌換 QR Code 只有 5 分鐘效期（後端用時間戳控制）
-- Cookie 存在使用者裝置，後端不存任何使用者資料
-- Private Key 絕對不能出現在前端或 git commit 裡
+| 限制 | 說明 |
+|------|------|
+| 每家店只能集一次 | Cookie 記錄，清 Cookie 可重置，接受此風險 |
+| 兌換 QR Code 效期 5 分鐘 | 後端用時間戳控制，防止重放攻擊 |
+| Private Key 不得外洩 | 只存在 Render 環境變數，不進 git |
+| 後端不儲存使用者資料 | 無資料庫，所有狀態在 Cookie |
