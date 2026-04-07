@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>集點卡</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+      padding: 32px 24px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    /* Stamp grid */
+    .stamps {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .stamp {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 3px dashed #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #ccc;
+      transition: all 0.3s;
+    }
+
+    .stamp.collected {
+      border: 3px solid #4caf50;
+      background: #e8f5e9;
+      color: #4caf50;
+    }
+
+    .stamp.current {
+      border: 3px solid #ff9800;
+      background: #fff3e0;
+      color: #ff9800;
+      animation: pop 0.4s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.5); }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    /* Messages */
+    .message {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .message.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .message.already {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    .message.error {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .message.ready {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .progress {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-redeem {
+      background: #4caf50;
+      color: #fff;
+    }
+
+    .btn-redeem:hover {
+      background: #388e3c;
+    }
+
+    .btn-redeem:disabled {
+      background: #bbb;
+      cursor: not-allowed;
+    }
+
+    /* QR Code */
+    #qrcode {
+      display: inline-block;
+      margin: 16px auto;
+      padding: 16px;
+      background: #fff;
+      border-radius: 8px;
+    }
+
+    .qr-hint {
+      color: #e65100;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      border: 4px solid #ccc;
+      border-top-color: #4caf50;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 16px auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: #888;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .no-shop {
+      color: #999;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>集點卡</h1>
+    <p class="subtitle">集滿 3 家即可兌換扭蛋</p>
+
+    <div class="stamps" id="stamps"></div>
+    <div id="content"></div>
+  </div>
+
+  <script>
+    // ===== Config =====
+    var API_BASE = "https://your-app.onrender.com"; // TODO: 填入後端實際 URL
+    var TOTAL_SHOPS = 5;
+    var REQUIRED_STAMPS = 3;
+    var COOKIE_NAME = "stamp_data";
+    var COOKIE_DAYS = 30;
+
+    // ===== Cookie helpers =====
+    function getStampData() {
+      var match = document.cookie.match(new RegExp("(?:^|; )" + COOKIE_NAME + "=([^;]*)"));
+      if (!match) return {};
+      try {
+        return JSON.parse(atob(decodeURIComponent(match[1])));
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveStampData(data) {
+      var encoded = encodeURIComponent(btoa(JSON.stringify(data)));
+      var expires = new Date(Date.now() + COOKIE_DAYS * 86400000).toUTCString();
+      document.cookie = COOKIE_NAME + "=" + encoded + "; expires=" + expires + "; path=/; SameSite=Lax";
+    }
+
+    // ===== Stamp count =====
+    function countStamps(data) {
+      var count = 0;
+      for (var key in data) {
+        if (data[key] && data[key].stamped === true) count++;
+      }
+      return count;
+    }
+
+    // ===== Render stamp circles =====
+    function renderStamps(data, currentShopId) {
+      var container = document.getElementById("stamps");
+      container.innerHTML = "";
+      for (var i = 1; i <= TOTAL_SHOPS; i++) {
+        var el = document.createElement("div");
+        el.className = "stamp";
+        var key = "shop_" + i;
+        if (data[key] && data[key].stamped) {
+          if (currentShopId === i) {
+            el.className += " current";
+          } else {
+            el.className += " collected";
+          }
+          el.textContent = "\u2713";
+        } else {
+          el.textContent = i;
+        }
+        container.appendChild(el);
+      }
+    }
+
+    // ===== Redeem =====
+    function redeem(data) {
+      var content = document.getElementById("content");
+      var btn = document.getElementById("redeemBtn");
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "處理中...";
+      }
+
+      content.innerHTML =
+        '<div class="spinner"></div>' +
+        '<p class="loading-text">正在產生兌換 QR Code，請稍候...</p>';
+
+      fetch(API_BASE + "/api/sign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stamps: data })
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error("server error");
+          return res.json();
+        })
+        .then(function (json) {
+          content.innerHTML =
+            '<div id="qrcode"></div>' +
+            '<p class="qr-hint">QR Code 5 分鐘內有效，請儘速出示給扭蛋機掃描</p>';
+          new QRCode(document.getElementById("qrcode"), {
+            text: json.qr_payload,
+            width: 256,
+            height: 256
+          });
+        })
+        .catch(function () {
+          content.innerHTML =
+            '<p class="message error">系統忙碌，請稍後再試</p>' +
+            '<button class="btn btn-redeem" onclick="redeem(getStampData())">重新兌換</button>';
+        });
+    }
+
+    // ===== Main =====
+    (function main() {
+      var params = new URLSearchParams(window.location.search);
+      var shopParam = params.get("shop");
+      var data = getStampData();
+      var content = document.getElementById("content");
+
+      // No shop param — just show current stamp card status
+      if (!shopParam) {
+        renderStamps(data, null);
+        var count = countStamps(data);
+        if (count >= REQUIRED_STAMPS) {
+          content.innerHTML =
+            '<p class="message ready">已集滿 ' + count + ' 家，可以兌換了！</p>' +
+            '<button class="btn btn-redeem" id="redeemBtn" onclick="redeem(getStampData())">兌換扭蛋</button>';
+        } else if (count > 0) {
+          content.innerHTML =
+            '<p class="progress">目前進度：' + count + ' / ' + REQUIRED_STAMPS + ' 家</p>';
+        } else {
+          content.innerHTML =
+            '<p class="no-shop">掃描店家 QR Code 開始集點吧！</p>';
+        }
+        return;
+      }
+
+      var shopId = parseInt(shopParam, 10);
+      if (isNaN(shopId) || shopId < 1 || shopId > TOTAL_SHOPS) {
+        renderStamps(data, null);
+        content.innerHTML = '<p class="message error">無效的店家編號</p>';
+        return;
+      }
+
+      var key = "shop_" + shopId;
+
+      // Already stamped
+      if (data[key] && data[key].stamped === true) {
+        renderStamps(data, null);
+        var count = countStamps(data);
+        content.innerHTML =
+          '<p class="message already">店家 #' + shopId + ' 已集點</p>' +
+          '<p class="progress">目前進度：' + count + ' / ' + REQUIRED_STAMPS + ' 家</p>';
+        if (count >= REQUIRED_STAMPS) {
+          content.innerHTML +=
+            '<button class="btn btn-redeem" id="redeemBtn" onclick="redeem(getStampData())">兌換扭蛋</button>';
+        }
+        return;
+      }
+
+      // New stamp
+      data[key] = {
+        stamped: true,
+        timestamp: new Date().toISOString()
+      };
+      saveStampData(data);
+
+      var count = countStamps(data);
+      renderStamps(data, shopId);
+
+      if (count >= REQUIRED_STAMPS) {
+        content.innerHTML =
+          '<p class="message success">店家 #' + shopId + ' 集點成功！</p>' +
+          '<p class="progress">已集滿 ' + count + ' 家，可以兌換了！</p>' +
+          '<button class="btn btn-redeem" id="redeemBtn" onclick="redeem(getStampData())">兌換扭蛋</button>';
+      } else {
+        content.innerHTML =
+          '<p class="message success">店家 #' + shopId + ' 集點成功！</p>' +
+          '<p class="progress">目前進度：' + count + ' / ' + REQUIRED_STAMPS + ' 家</p>';
+      }
+    })();
+  </script>
+</body>
+</html>
