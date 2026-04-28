@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Demo Store</title>
+<title>東澳 Dong'ao · 宜蘭山海秘境</title>
+<meta name="description" content="宜蘭蘇澳鎮東澳里——三面青山環繞、一方獨向太平洋的山海秘境。粉鳥林、東岳湧泉、烏石鼻、神秘海灘、澳花瀑布，五個面貌、同一片山海。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=LXGW+WenKai+TC:wght@300;400;700&family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -13,17 +14,18 @@
 <!-- ══════ HEADER ══════ -->
 <header class="hdr hdr--top" id="hdr">
   <div class="hdr-inner">
-    <a href="#" class="logo"><span class="logo-m">S</span><span class="logo-d"></span><span class="logo-s">Demo Store</span></a>
+    <a href="#" class="logo">
+      <span class="logo-m" lang="en">Dong'ao</span>
+      <span class="logo-d"></span>
+      <span class="logo-s">宜蘭 · 東澳</span>
+    </a>
     <nav class="nav">
-      <a href="#story">我們的故事</a>
+      <a href="#story">在地故事</a>
       <a href="#attractions">景點</a>
-      <a href="#products">商品</a>
+      <a href="#products">在地特產</a>
       <a href="#about-shop">店家介紹</a>
     </nav>
     <div class="hdr-act">
-      <button class="hb" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
-      <button class="hb" aria-label="Account"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
-      <button class="hb" aria-label="Cart"><svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-d"></span></button>
       <button class="hb hb-stamp" id="stampBtn" aria-label="集點卡"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg><span class="stamp-badge" id="stampBadge"></span></button>
       <button class="mt" id="menuT" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     </div>
@@ -35,7 +37,7 @@
   <div class="mn-bk" id="mnBk"></div>
   <div class="mn-p">
     <button class="mn-cl" id="mnCl"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    <a href="#story">我們的故事</a><a href="#attractions">景點</a><a href="#products">商品</a><a href="#about-shop">店家介紹</a>
+    <a href="#story">在地故事</a><a href="#attractions">景點</a><a href="#products">在地特產</a><a href="#about-shop">店家介紹</a>
   </div>
 </div>
 
@@ -47,7 +49,7 @@
     <div class="sm-head">
       <div class="sm-label">Loyalty Card</div>
       <h3 id="smTitle"><em>集點</em>卡</h3>
-      <div class="sm-sub">集滿 3 家即可兌換扭蛋</div>
+      <div class="sm-sub">走訪 3 家以上在地店家，即可兌換扭蛋好禮</div>
     </div>
     <div class="sm-stamps" id="smStamps"></div>
     <div class="sm-content" id="smContent"></div>
@@ -57,16 +59,16 @@
 <!-- ══════ HERO ══════ -->
 <section class="hero" id="hero">
   <div class="hero-bg" id="heroBg">
-    <div class="hero-bg-slide"><div class="bg-fill hbg1"></div></div>
-    <div class="hero-bg-slide"><div class="bg-fill hbg2"></div></div>
-    <div class="hero-bg-slide"><div class="bg-fill hbg3"></div></div>
+    <div class="hero-bg-slide"><div class="bg-fill" style="background:linear-gradient(rgba(13,40,46,.25),rgba(13,40,46,.55)),url('https://images.unsplash.com/photo-1768190691654-09c492f220f4?auto=format&amp;fit=crop&amp;w=1800&amp;q=75') center/cover"></div></div>
+    <div class="hero-bg-slide"><div class="bg-fill" style="background:linear-gradient(rgba(20,30,40,.3),rgba(20,30,40,.6)),url('https://images.unsplash.com/photo-1758642882005-447873fd2d29?auto=format&amp;fit=crop&amp;w=1800&amp;q=75') center/cover"></div></div>
+    <div class="hero-bg-slide"><div class="bg-fill" style="background:linear-gradient(rgba(40,30,20,.3),rgba(40,30,20,.55)),url('https://images.unsplash.com/photo-1647840158049-d9b479cd0454?auto=format&amp;fit=crop&amp;w=1800&amp;q=75') center/cover"></div></div>
   </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="hero-tag"><span class="td"></span><span id="heroTagText">Banner 1</span></div>
-    <h2 class="hero-h" id="heroH"><em>Heading</em><br>Subheading Text</h2>
-    <p class="hero-p" id="heroP">Description area for the hero banner. Replace this placeholder with your own copy. This will look stunning with a real photograph behind it.</p>
-    <a href="#" class="hero-cta"><span>Call to Action</span><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    <div class="hero-tag"><span class="td"></span><span>YILAN · DONG'AO</span></div>
+    <h2 class="hero-h"><em lang="en">Dong'ao</em><br>山海之間，緩慢的小漁村</h2>
+    <p class="hero-p">三面青山環繞，一方獨向太平洋<br>蘇花公路的中繼點 · 北迴鐵路的山海驛站</p>
+    <a href="#story" class="hero-cta"><span>探索東澳</span><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
   </div>
   <div class="hero-dots" id="heroDots">
     <div class="hero-dot active" data-i="0"></div>
@@ -79,128 +81,136 @@
 <!-- ══════ CATEGORY BAR ══════ -->
 <div class="catbar">
   <div class="catbar-inner">
-    <a href="#story"><span class="cat-dot"></span>我們的故事</a>
+    <a href="#story"><span class="cat-dot"></span>在地故事</a>
     <a href="#attractions"><span class="cat-dot"></span>景點導覽</a>
-    <a href="#products"><span class="cat-dot"></span>精選商品</a>
+    <a href="#products"><span class="cat-dot"></span>在地特產</a>
     <a href="#about-shop"><span class="cat-dot"></span>店家介紹</a>
     <a href="#gallery"><span class="cat-dot"></span>相簿</a>
   </div>
 </div>
 
-<!-- ══════ PHOTO STORY 1 ══════ -->
+<!-- ══════ PHOTO STORY 1 · 我們的故事 ══════ -->
 <section class="photo-story rv" id="story">
   <div class="photo-story-inner">
     <div class="ps-text">
-      <div class="ps-label">Our Story</div>
-      <h3 class="ps-h"><em>Story</em> Headline</h3>
-      <p class="ps-p">This section is designed for storytelling with a large photo alongside. Replace the gradient placeholder with a beautiful photograph to tell your brand story.</p>
-      <a href="#" class="ps-link">Read More <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <div class="ps-label">Our Story · 在地故事</div>
+      <h3 class="ps-h"><em>山海</em>之間，緩慢的小漁村</h3>
+      <p class="ps-p">東澳，宜蘭縣蘇澳鎮的偏遠村落。三面被高山包圍、一面緊貼太平洋；蘇花公路自此切過，北迴鐵路在山中蜿蜒。<br><br>東澳南、北兩溪自山中奔流而下，匯入太平洋之前，先在沙岸沖出一彎優美的新月——這便是東澳灣。早年是泰雅族人世居之地，至今仍保留著少有觀光打擾的原始山海風貌。</p>
+      <a href="#attractions" class="ps-link">看見東澳的多重面貌 <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
     </div>
-    <div class="ps-img"><div class="ph ps-img-1">Photo</div></div>
+    <div class="ps-img"><div class="ph" style="background:url('https://images.unsplash.com/photo-1567933623174-ad1c2822d4ce?auto=format&amp;fit=crop&amp;w=1200&amp;q=75') center/cover"></div></div>
   </div>
 </section>
 
-<!-- ══════ FULLBLEED PHOTO ══════ -->
+<!-- ══════ FULLBLEED 1 · 藍寶石海灣 ══════ -->
 <div class="fullbleed rv">
-  <div class="fb-bg fb-bg-1"></div>
+  <div class="fb-bg" style="background:url('https://images.unsplash.com/photo-1549002942-c6af9c116f79?auto=format&amp;fit=crop&amp;w=1800&amp;q=75') center/cover"></div>
   <div class="fb-content">
-    <h3>Full-width Photo Section</h3>
-    <p>Replace this gradient with a full-bleed landscape photograph. The text overlays beautifully on top. Perfect for scenic views or atmospheric imagery.</p>
+    <h3>詩意如畫的<br>藍寶石海灣</h3>
+    <p>海水清澈得像打翻了土耳其藍的調色盤<br>礁岩立於浪間，與青山相應<br>「台版下龍灣」的封號便是這樣來的</p>
   </div>
 </div>
 
-<!-- ══════ PHOTO STORY 2 (reversed) ══════ -->
+<!-- ══════ PHOTO STORY 2 · 探索東澳 ══════ -->
 <section class="photo-story rv">
   <div class="photo-story-inner" style="direction:rtl">
     <div class="ps-text" style="direction:ltr">
-      <div class="ps-label">Attractions</div>
-      <h3 class="ps-h"><em>Explore</em> the Area</h3>
-      <p class="ps-p">Another story section with reversed layout for visual rhythm. Alternate photo placement keeps the page dynamic as users scroll through your content.</p>
-      <a href="#" class="ps-link">Discover More <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <div class="ps-label">Attractions · 探索東澳</div>
+      <h3 class="ps-h">五個面貌，<em>同一片</em>山海</h3>
+      <p class="ps-p">從<strong>粉鳥林漁港</strong>的湛藍海灣、<strong>東岳湧泉</strong>終年 16°C 的山泉清涼；從<strong>烏石鼻海岬</strong>的險峻奇岩、到<strong>南澳神秘海灘</strong>綿延八公里的山海縱走，再到隱身山林的<strong>澳花瀑布</strong>——東澳，收藏了五種截然不同的台灣面貌。</p>
+      <a href="#gallery" class="ps-link">看景點相簿 <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
     </div>
-    <div class="ps-img" style="direction:ltr"><div class="ph ps-img-2">Photo</div></div>
+    <div class="ps-img" style="direction:ltr"><div class="ph" style="background:url('https://images.unsplash.com/photo-1756191631857-4f534a78d69f?auto=format&amp;fit=crop&amp;w=1200&amp;q=75') center/cover"></div></div>
   </div>
 </section>
 
-<!-- ══════ GALLERY ══════ -->
+<!-- ══════ GALLERY · 東澳剪影 ══════ -->
 <section class="gallery rv" id="gallery">
   <div class="gallery-inner">
-    <div class="section-head"><h3>Photo Gallery<span class="sub">Replace gradients with your photos</span></h3></div>
+    <div class="section-head"><h3>東澳剪影<span class="sub">PHOTO GALLERY · 山海風光</span></h3></div>
     <div class="gallery-grid">
-      <div class="gallery-item gi-tall"><div class="gi-ph gp-1">Photo 1</div><div class="gi-overlay"><span>Caption Text</span></div></div>
-      <div class="gallery-item gi-wide"><div class="gi-ph gp-2">Photo 2</div><div class="gi-overlay"><span>Caption Text</span></div></div>
-      <div class="gallery-item"><div class="gi-ph gp-3" style="aspect-ratio:1">Photo 3</div><div class="gi-overlay"><span>Caption Text</span></div></div>
-      <div class="gallery-item"><div class="gi-ph gp-4">Photo 4</div><div class="gi-overlay"><span>Caption Text</span></div></div>
-      <div class="gallery-item"><div class="gi-ph gp-5">Photo 5</div><div class="gi-overlay"><span>Caption Text</span></div></div>
-      <div class="gallery-item"><div class="gi-ph gp-6" style="aspect-ratio:16/9">Photo 6</div><div class="gi-overlay"><span>Caption Text</span></div></div>
+      <div class="gallery-item gi-tall"><div class="gi-ph" style="background:url('https://images.unsplash.com/photo-1750213699424-34497dc297a4?auto=format&amp;fit=crop&amp;w=900&amp;q=75') center/cover"></div><div class="gi-overlay"><span>粉鳥林漁港 · 湛藍海灣</span></div></div>
+      <div class="gallery-item gi-wide"><div class="gi-ph" style="background:url('https://images.unsplash.com/photo-1768190691654-09c492f220f4?auto=format&amp;fit=crop&amp;w=1200&amp;q=75') center/cover"></div><div class="gi-overlay"><span>東澳灣 · 山海合奏</span></div></div>
+      <div class="gallery-item"><div class="gi-ph" style="aspect-ratio:1;background:url('https://images.unsplash.com/photo-1756155160750-42354f02c1b7?auto=format&amp;fit=crop&amp;w=900&amp;q=75') center/cover"></div><div class="gi-overlay"><span>山林 · 漫步霧中</span></div></div>
+      <div class="gallery-item"><div class="gi-ph" style="aspect-ratio:1;background:url('https://images.unsplash.com/photo-1588442734586-3e608a2d44e9?auto=format&amp;fit=crop&amp;w=900&amp;q=75') center/cover"></div><div class="gi-overlay"><span>烏石鼻海岬 · 海蝕奇景</span></div></div>
+      <div class="gallery-item"><div class="gi-ph" style="aspect-ratio:1;background:url('https://images.unsplash.com/photo-1567933623174-ad1c2822d4ce?auto=format&amp;fit=crop&amp;w=900&amp;q=75') center/cover"></div><div class="gi-overlay"><span>神秘海灘 · 山海縱走</span></div></div>
+      <div class="gallery-item gi-wide"><div class="gi-ph" style="aspect-ratio:16/9;background:url('https://images.unsplash.com/photo-1647840158049-d9b479cd0454?auto=format&amp;fit=crop&amp;w=1200&amp;q=75') center/cover"></div><div class="gi-overlay"><span>漁人歸航 · 粉鳥林晨色</span></div></div>
     </div>
   </div>
 </section>
 
-<!-- ══════ SECTION A ══════ -->
+<!-- ══════ SECTION A · 在地餐桌 ══════ -->
 <section class="section rv" id="products">
-  <div class="section-head"><h3>Section A<span class="sub">Product Grid 3&times;2</span></h3></div>
+  <div class="section-head"><h3>在地餐桌<span class="sub">LOCAL TASTES · 山海餐桌</span></h3></div>
   <div class="pgrid">
-    <div class="pcard"><span class="pbadge b-gold">Badge A</span><div class="pimg pi-a">A1</div><div class="pinfo"><div class="pname">Product Name A1 (specification)</div><div class="pprices"><span class="pprice">NT$280</span><span class="porig">NT$300</span></div></div></div>
-    <div class="pcard"><span class="pbadge b-teal">Badge B</span><div class="pimg pi-b">A2</div><div class="pinfo"><div class="pname">Product Name A2 (specification)</div><div class="pprices"><span class="pprice">NT$180</span><span class="porig">NT$200</span></div></div></div>
-    <div class="pcard"><span class="pbadge b-teal">Badge B</span><div class="pimg pi-c">A3</div><div class="pinfo"><div class="pname">Product Name A3 (specification)</div><div class="pprices"><span class="pprice">NT$180</span><span class="porig">NT$200</span></div></div></div>
-    <div class="pcard"><span class="pbadge b-rose">Badge C</span><div class="pimg pi-d">A4</div><div class="pinfo"><div class="pname">Product Name A4 (specification)</div><div class="pprices"><span class="pprice">NT$480</span><span class="porig">NT$500</span></div></div></div>
-    <div class="pcard"><span class="pbadge b-gold">Badge D</span><div class="pimg pi-e">A5</div><div class="pinfo"><div class="pname">Product Name A5 (specification)</div><div class="pprices"><span class="pprice">NT$450</span></div></div></div>
-    <div class="pcard"><span class="pbadge b-dark">Badge E</span><div class="pimg pi-f">A6</div><div class="pinfo"><div class="pname">Product Name A6 (specification)</div><div class="pprices"><span class="pprice">NT$450</span><span class="porig">NT$480</span></div></div></div>
+    <a class="pcard" href="https://www.google.com/maps/search/?api=1&amp;query=粉鳥林的一把小雨傘+宜蘭蘇澳" target="_blank" rel="noopener"><span class="pbadge b-gold">招牌</span><div class="pimg pi-a">炭烤</div><div class="pinfo"><div class="pname">炭烤現流魚 · 海鮮串燒</div><div class="pprices"><span class="pprice">一把小雨傘 →</span></div></div></a>
+    <a class="pcard" href="https://www.google.com/maps/search/?api=1&amp;query=阿滿姨小吃部+粉鳥林" target="_blank" rel="noopener"><span class="pbadge b-teal">在地</span><div class="pimg pi-b">山海</div><div class="pinfo"><div class="pname">刺蔥炒蛋・山海拼盤</div><div class="pprices"><span class="pprice">阿滿姨小吃部 →</span></div></div></a>
+    <a class="pcard" href="https://www.google.com/maps/search/?api=1&amp;query=粉鳥林漁港" target="_blank" rel="noopener"><span class="pbadge b-teal">現流</span><div class="pimg pi-c">漁港</div><div class="pinfo"><div class="pname">漁港現撈鮮味</div><div class="pprices"><span class="pprice">粉鳥林漁港攤販 →</span></div></div></a>
+    <a class="pcard" href="https://www.google.com/maps/search/?api=1&amp;query=南方澳鯖魚一夜干" target="_blank" rel="noopener"><span class="pbadge b-rose">推薦</span><div class="pimg pi-d">一夜干</div><div class="pinfo"><div class="pname">鯖魚一夜干</div><div class="pprices"><span class="pprice">南方澳魚市場 →</span></div></div></a>
+    <a class="pcard" href="https://www.google.com/maps/search/?api=1&amp;query=南澳泰雅部落+馬告" target="_blank" rel="noopener"><span class="pbadge b-gold">部落</span><div class="pimg pi-e">馬告</div><div class="pinfo"><div class="pname">馬告山胡椒調味</div><div class="pprices"><span class="pprice">南澳泰雅部落 →</span></div></div></a>
+    <a class="pcard" href="https://www.google.com/maps/search/?api=1&amp;query=東澳南溪海菜" target="_blank" rel="noopener"><span class="pbadge b-dark">經典</span><div class="pimg pi-f">海菜</div><div class="pinfo"><div class="pname">在地海菜羹</div><div class="pprices"><span class="pprice">東澳手作 · 限量 →</span></div></div></a>
   </div>
 </section>
 
 <!-- ══════ INFO BANNER ══════ -->
-<div class="info-ban"><div class="info-ban-inner"><h4>Full-width info banner area</h4><p>Secondary description text</p></div></div>
-
-<!-- ══════ FULLBLEED 2 ══════ -->
-<div class="fullbleed rv">
-  <div class="fb-bg fb-bg-2"></div>
-  <div class="fb-content">
-    <h3>Another Photo Section</h3>
-    <p>Use this for a dramatic landscape or an atmospheric product shot. The parallax-like effect creates depth as users scroll.</p>
+<div class="info-ban">
+  <div class="info-ban-inner">
+    <h4>三面青山，一方太平洋</h4>
+    <p>蘇澳出發約 13 分鐘 · 北迴鐵路東澳站 · 蘇花改一段直達</p>
   </div>
 </div>
 
-<!-- ══════ SECTION B ══════ -->
+<!-- ══════ FULLBLEED 2 · 山海並存 ══════ -->
+<div class="fullbleed rv">
+  <div class="fb-bg" style="background:url('https://images.unsplash.com/photo-1758642882005-447873fd2d29?auto=format&amp;fit=crop&amp;w=1800&amp;q=75') center/cover"></div>
+  <div class="fb-content">
+    <h3>夾在山與海之間<br>的緩慢時光</h3>
+    <p>一邊是奔騰的太平洋，一邊是中央山脈尾稜<br>東澳，把兩種氣候、兩種地貌、兩種文化<br>編織進同一個緩慢的下午</p>
+  </div>
+</div>
+
+<!-- ══════ SECTION B · 戶外體驗 ══════ -->
 <section class="section section-alt rv">
-  <div class="section-head"><h3>Section B<span class="sub">Product Grid 4&times;1</span></h3></div>
+  <div class="section-head"><h3>戶外體驗<span class="sub">EXPERIENCES · 山海玩法</span></h3></div>
   <div class="alt-grid">
-    <div class="pcard"><span class="pbadge b-teal">Badge F</span><div class="pimg pi-d">B1</div><div class="pinfo"><div class="pname">Product Name B1</div><div class="pprices"><span class="pprice">NT$2,200</span><span class="porig">NT$4,800</span></div></div></div>
-    <div class="pcard"><span class="pbadge b-teal">Badge F</span><div class="pimg pi-g">B2</div><div class="pinfo"><div class="pname">Product Name B2</div><div class="pprices"><span class="pprice">NT$2,200</span><span class="porig">NT$4,800</span></div></div></div>
-    <div class="pcard"><span class="pbadge b-teal">Badge F</span><div class="pimg pi-h">B3</div><div class="pinfo"><div class="pname">Product Name B3</div><div class="pprices"><span class="pprice">NT$3,330</span><span class="porig">NT$8,000</span></div></div></div>
-    <div class="pcard"><span class="pbadge b-teal">Badge F</span><div class="pimg pi-e">B4</div><div class="pinfo"><div class="pname">Product Name B4</div><div class="pprices"><span class="pprice">NT$5,000</span><span class="porig">NT$12,000</span></div></div></div>
+    <a class="pcard" href="https://www.google.com/maps/search/?api=1&amp;query=東澳海安獨木舟" target="_blank" rel="noopener"><span class="pbadge b-teal">海上</span><div class="pimg pi-d">獨木舟</div><div class="pinfo"><div class="pname">烏岩角獨木舟</div><div class="pprices"><span class="pprice">東澳海安基地 →</span></div></div></a>
+    <a class="pcard" href="https://www.google.com/maps/search/?api=1&amp;query=粉鳥林+SUP" target="_blank" rel="noopener"><span class="pbadge b-teal">海上</span><div class="pimg pi-g">SUP</div><div class="pinfo"><div class="pname">粉鳥林 SUP 立槳</div><div class="pprices"><span class="pprice">粉鳥林漁港 →</span></div></div></a>
+    <a class="pcard" href="https://www.google.com/maps/search/?api=1&amp;query=東岳湧泉公園" target="_blank" rel="noopener"><span class="pbadge b-teal">親子</span><div class="pimg pi-h">湧泉</div><div class="pinfo"><div class="pname">東岳湧泉戲水</div><div class="pprices"><span class="pprice">東岳湧泉公園 →</span></div></div></a>
+    <a class="pcard" href="https://www.google.com/maps/search/?api=1&amp;query=澳花瀑布" target="_blank" rel="noopener"><span class="pbadge b-teal">健行</span><div class="pimg pi-e">瀑布</div><div class="pinfo"><div class="pname">澳花瀑布步道</div><div class="pprices"><span class="pprice">十層樓巨人瀑布 →</span></div></div></a>
   </div>
 </section>
 
-<!-- ══════ SECTION C ══════ -->
+<!-- ══════ SECTION C · 夜宿東澳 ══════ -->
 <section class="section rv">
-  <div class="section-head"><h3>Section C<span class="sub">Product Grid 3&times;1</span></h3></div>
+  <div class="section-head"><h3>夜宿東澳<span class="sub">STAY · 在山海之間入眠</span></h3></div>
   <div class="top-grid">
-    <div class="pcard"><span class="pbadge b-gold">Badge G</span><div class="pimg pi-c">C1</div><div class="pinfo"><div class="pname">Product Name C1</div><div class="pprices"><span class="pprice">NT$900</span><span class="porig">NT$1,000</span></div></div></div>
-    <div class="pcard"><span class="pbadge b-rose">Badge H</span><div class="pimg pi-f">C2</div><div class="pinfo"><div class="pname">Product Name C2</div><div class="pprices"><span class="pprice">NT$1,400</span></div></div></div>
-    <div class="pcard"><span class="pbadge b-gold">Badge A</span><div class="pimg pi-a">C3</div><div class="pinfo"><div class="pname">Product Name C3</div><div class="pprices"><span class="pprice">NT$280</span><span class="porig">NT$300</span></div></div></div>
+    <a class="pcard" href="https://www.google.com/maps/search/?api=1&amp;query=睡海邊小木屋+東澳" target="_blank" rel="noopener"><span class="pbadge b-gold">海景</span><div class="pimg pi-c">小木屋</div><div class="pinfo"><div class="pname">睡海邊小木屋</div><div class="pprices"><span class="pprice">東澳灣海景民宿 →</span></div></div></a>
+    <a class="pcard" href="https://www.google.com/maps/search/?api=1&amp;query=露境東岳" target="_blank" rel="noopener"><span class="pbadge b-rose">背包</span><div class="pimg pi-f">露境</div><div class="pinfo"><div class="pname">露境東岳公社</div><div class="pprices"><span class="pprice">東岳火車站旁 →</span></div></div></a>
+    <a class="pcard" href="https://www.google.com/maps/search/?api=1&amp;query=瓏山林蘇澳冷熱泉度假飯店" target="_blank" rel="noopener"><span class="pbadge b-gold">五星</span><div class="pimg pi-a">雙泉</div><div class="pinfo"><div class="pname">瓏山林冷熱泉</div><div class="pprices"><span class="pprice">蘇澳雙泉飯店 →</span></div></div></a>
   </div>
 </section>
 
-<!-- ══════ SECTION D ══════ -->
+<!-- ══════ SECTION D · 在地店家 ══════ -->
 <section class="card-sec rv" id="attractions">
-  <div class="section-head"><h3>Section D<span class="sub">Card Grid 5-col</span></h3></div>
+  <div class="section-head"><h3>在地店家<span class="sub">LOCAL SHOPS · 走進東澳的日常</span></h3></div>
   <div class="card-grid">
-    <div class="ccard"><div class="cthumb ct-1">D1</div><div class="cbody"><h5>Card Title D1</h5><p>Card description text</p><span class="clink">Link &rarr;</span></div></div>
-    <div class="ccard"><div class="cthumb ct-2">D2</div><div class="cbody"><h5>Card Title D2</h5><p>Card description text</p><span class="clink">Link &rarr;</span></div></div>
-    <div class="ccard"><div class="cthumb ct-3">D3</div><div class="cbody"><h5>Card Title D3</h5><p>Card description text</p><span class="clink">Link &rarr;</span></div></div>
-    <div class="ccard"><div class="cthumb ct-4">D4</div><div class="cbody"><h5>Card Title D4</h5><p>Card description text</p><span class="clink">Link &rarr;</span></div></div>
-    <div class="ccard"><div class="cthumb ct-5">D5</div><div class="cbody"><h5>Card Title D5</h5><p>Card description text</p><span class="clink">Link &rarr;</span></div></div>
+    <a class="ccard" href="https://www.google.com/maps/search/?api=1&amp;query=粉鳥林的一把小雨傘+宜蘭" target="_blank" rel="noopener"><div class="cthumb ct-1">海鮮炭烤</div><div class="cbody"><h5>一把小雨傘</h5><p>菜色寫在石頭上的隱藏料理<br>距粉鳥林約 5 分鐘車程</p><span class="clink">查看店家 &rarr;</span></div></a>
+    <a class="ccard" href="https://www.google.com/maps/search/?api=1&amp;query=阿滿姨小吃部+粉鳥林" target="_blank" rel="noopener"><div class="cthumb ct-2">在地小吃</div><div class="cbody"><h5>阿滿姨小吃部</h5><p>粉鳥林老字號海味小吃<br>七至九月休魚期暫停營業</p><span class="clink">查看店家 &rarr;</span></div></a>
+    <a class="ccard" href="https://www.google.com/maps/search/?api=1&amp;query=蘇澳蜡藝蠟筆城堡" target="_blank" rel="noopener"><div class="cthumb ct-3">親子工廠</div><div class="cbody"><h5>蜡藝蠟筆城堡</h5><p>觀光工廠 · 親手做蠟筆<br>東澳順遊熱門景點</p><span class="clink">查看店家 &rarr;</span></div></a>
+    <a class="ccard" href="https://www.google.com/maps/search/?api=1&amp;query=東岳湧泉公園" target="_blank" rel="noopener"><div class="cthumb ct-4">戲水景點</div><div class="cbody"><h5>東岳湧泉公園</h5><p>免費入園 · 全年 14~16°C<br>夏季 6/20~10/12 開放戲水</p><span class="clink">查看景點 &rarr;</span></div></a>
+    <a class="ccard" href="https://www.google.com/maps/search/?api=1&amp;query=粉鳥林漁港" target="_blank" rel="noopener"><div class="cthumb ct-5">觀光漁港</div><div class="cbody"><h5>粉鳥林漁港</h5><p>海角天涯的湛藍秘境<br>嚴禁戲水 · 適合拍照賞景</p><span class="clink">查看景點 &rarr;</span></div></a>
   </div>
 </section>
 
-<!-- ══════ SUBSCRIBE ══════ -->
+<!-- ══════ FOLLOW BANNER ══════ -->
 <div class="subscribe">
   <div class="sub-inner">
-    <span class="sub-logo">S</span>
-    <div class="sub-text"><h4>Subscribe Newsletter</h4><p>Stay updated with our latest news and exclusive offers.</p></div>
-    <a href="#" class="sub-btn">Subscribe <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    <span class="sub-logo">東</span>
+    <div class="sub-text">
+      <h4>跟著東澳一起呼吸</h4>
+      <p>在山海之間的小漁村，緩慢生活的最新風景。</p>
+    </div>
+    <a href="#" class="sub-btn">追蹤我們 <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
   </div>
 </div>
 
@@ -208,41 +218,55 @@
 <footer class="footer" id="about-shop">
   <div class="footer-inner">
     <div>
-      <h4>About Us</h4>
-      <ul><li><a href="#">About Link 1</a></li><li><a href="#">About Link 2</a></li><li><a href="#">About Link 3</a></li><li><a href="#">About Link 4</a></li><li><a href="#">About Link 5</a></li><li><a href="#">About Link 6</a></li><li><a href="#">About Link 7</a></li><li><a href="#">About Link 8</a></li></ul>
+      <h4>關於東澳</h4>
+      <ul>
+        <li><a href="#story">在地故事</a></li>
+        <li><a href="#attractions">景點導覽</a></li>
+        <li><a href="#products">在地特產</a></li>
+        <li><a href="#about-shop">店家介紹</a></li>
+        <li><a href="#gallery">相簿</a></li>
+      </ul>
     </div>
     <div>
-      <h4>Service</h4>
-      <ul><li><a href="#">Service Link 1</a></li><li><a href="#">Service Link 2</a></li><li><a href="#">Service Link 3</a></li><li><a href="#">Service Link 4</a></li><li><a href="#">Service Link 5</a></li><li><a href="#">Service Link 6</a></li></ul>
+      <h4>旅遊主題</h4>
+      <ul>
+        <li><a href="#products">山海餐桌</a></li>
+        <li><a href="#attractions">海上活動</a></li>
+        <li><a href="#attractions">山林步道</a></li>
+        <li><a href="#attractions">親子景點</a></li>
+        <li><a href="#story">部落文化</a></li>
+        <li><a href="#gallery">攝影景點</a></li>
+      </ul>
     </div>
     <div>
-      <h4>Contact Us</h4>
-      <p><span class="clabel">Office A</span> / Company Name</p>
-      <p>Hours / Mon–Fri 09:00~16:00</p>
-      <p>Phone / 02-1234-5678</p>
-      <p>E-MAIL / info@example.com</p>
-      <p>Address Line 1</p>
+      <h4>交通與聯絡</h4>
+      <p><span class="clabel">自駕</span> / 蘇澳出發約 13 分鐘（蘇花改）</p>
+      <p>路線 / 國道 5 號蘇澳交流道 → 台 9 線</p>
+      <p>大眾運輸 / 北迴鐵路 · 東澳站</p>
+      <p>停車 / 東岳湧泉公園免費停車場</p>
       <hr class="fdiv">
-      <p><span class="clabel">Office B</span> / Branch Name</p>
-      <p>Hours / Mon–Sun 09:00~17:00</p>
-      <p>Phone / 06-1234-5678</p>
-      <p>E-MAIL / info@example.com</p>
-      <p>Address Line 2</p>
+      <p><span class="clabel">聯絡</span> / 東澳觀光資訊（示意）</p>
+      <p>地址 / 宜蘭縣蘇澳鎮東澳里</p>
+      <p>E-MAIL / hi@dongao.example</p>
+      <p>注意 / 粉鳥林海象兇險，嚴禁戲水</p>
     </div>
     <div>
-      <h4>Social Media</h4>
+      <h4>追蹤東澳</h4>
       <div class="socials">
         <a href="#" class="soc" aria-label="Facebook"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
         <a href="#" class="soc" aria-label="LINE"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.82 2 10.5c0 3.27 2.35 6.1 5.85 7.5l-.65 2.4c-.1.35.3.65.6.45L11 19c.33.03.66.05 1 .05 5.52 0 10-3.82 10-8.55C22 5.82 17.52 2 12 2z"/></svg></a>
         <a href="#" class="soc" aria-label="Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg></a>
       </div>
       <div style="margin-top:32px">
-        <span style="font-family:var(--fd);font-size:20px;font-weight:300;font-style:italic;color:var(--gold);letter-spacing:2px">S</span>
-        <p style="margin-top:8px;font-size:11px;color:rgba(255,255,255,.25);line-height:1.8">Tagline Line 1<br>Tagline Line 2</p>
+        <span lang="en" style="font-family:var(--fd);font-size:22px;font-weight:300;font-style:italic;color:var(--gold);letter-spacing:2px">Dong'ao</span>
+        <p style="margin-top:8px;font-size:11px;color:rgba(255,255,255,.25);line-height:1.8">山海之間，緩慢的時間<br>宜蘭 · 東澳 · DONG'AO</p>
       </div>
     </div>
   </div>
-  <div class="fbot"><a href="#">Privacy Policy</a> ｜ 2025 &copy; Demo Store. All rights reserved.</div>
+  <div class="fbot">
+    <a href="#">隱私權政策</a> ｜ © 2026 東澳觀光資訊（示意網站）
+    <span style="display:block;margin-top:6px;opacity:.6">圖片來源 Unsplash · 內容如需更新請洽聯絡 E-MAIL</span>
+  </div>
 </footer>
 
 <button class="btt" id="btt" aria-label="Top"><svg viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg></button>
