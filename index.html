@@ -1,385 +1,253 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>集點卡</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f5f5;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
-      padding: 32px 24px;
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 24px;
-      margin-bottom: 8px;
-      color: #333;
-    }
-
-    .subtitle {
-      color: #888;
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
-
-    /* Stamp grid */
-    .stamps {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-
-    .stamp {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      border: 3px dashed #ccc;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      color: #ccc;
-      transition: all 0.3s;
-    }
-
-    .stamp.collected {
-      border: 3px solid #4caf50;
-      background: #e8f5e9;
-      color: #4caf50;
-    }
-
-    .stamp.current {
-      border: 3px solid #ff9800;
-      background: #fff3e0;
-      color: #ff9800;
-      animation: pop 0.4s ease;
-    }
-
-    @keyframes pop {
-      0% { transform: scale(0.5); }
-      70% { transform: scale(1.15); }
-      100% { transform: scale(1); }
-    }
-
-    /* Messages */
-    .message {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 16px;
-      padding: 12px;
-      border-radius: 8px;
-    }
-
-    .message.success {
-      background: #e8f5e9;
-      color: #2e7d32;
-    }
-
-    .message.already {
-      background: #fff3e0;
-      color: #e65100;
-    }
-
-    .message.error {
-      background: #ffebee;
-      color: #c62828;
-    }
-
-    .message.ready {
-      background: #e3f2fd;
-      color: #1565c0;
-    }
-
-    .progress {
-      color: #666;
-      font-size: 14px;
-      margin-bottom: 20px;
-    }
-
-    /* Buttons */
-    .btn {
-      display: inline-block;
-      padding: 14px 32px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .btn-redeem {
-      background: #4caf50;
-      color: #fff;
-    }
-
-    .btn-redeem:hover {
-      background: #388e3c;
-    }
-
-    .btn-redeem:disabled {
-      background: #bbb;
-      cursor: not-allowed;
-    }
-
-    /* QR Code */
-    #qrcode {
-      display: inline-block;
-      margin: 16px auto;
-      padding: 16px;
-      background: #fff;
-      border-radius: 8px;
-    }
-
-    .qr-hint {
-      color: #e65100;
-      font-size: 14px;
-      font-weight: 600;
-      margin-top: 12px;
-    }
-
-    /* Loading spinner */
-    .spinner {
-      display: inline-block;
-      width: 32px;
-      height: 32px;
-      border: 4px solid #ccc;
-      border-top-color: #4caf50;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 16px auto;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .loading-text {
-      color: #888;
-      font-size: 14px;
-      margin-top: 8px;
-    }
-
-    .no-shop {
-      color: #999;
-      font-size: 16px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="card">
-    <h1>集點卡</h1>
-    <p class="subtitle">集滿 3 家即可兌換扭蛋</p>
 
-    <div class="stamps" id="stamps"></div>
-    <div id="content"></div>
+<!-- ══════ HEADER ══════ -->
+<header class="hdr hdr--top" id="hdr">
+  <div class="hdr-inner">
+    <a href="#" class="logo"><span class="logo-m">S</span><span class="logo-d"></span><span class="logo-s">Demo Store</span></a>
+    <nav class="nav">
+      <a href="#story">我們的故事</a>
+      <a href="#attractions">景點</a>
+      <a href="#products">商品</a>
+      <a href="#about-shop">店家介紹</a>
+    </nav>
+    <div class="hdr-act">
+      <button class="hb" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+      <button class="hb" aria-label="Account"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+      <button class="hb" aria-label="Cart"><svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-d"></span></button>
+      <button class="hb hb-stamp" id="stampBtn" aria-label="集點卡"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg><span class="stamp-badge" id="stampBadge"></span></button>
+      <button class="mt" id="menuT" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
   </div>
+</header>
 
-  <script>
-    // ===== Config =====
-    var API_BASE = "https://eia-application.onrender.com"; 
-    var TOTAL_SHOPS = 5;
-    var REQUIRED_STAMPS = 3;
-    var COOKIE_NAME = "stamp_data";
-    var COOKIE_DAYS = 30;
+<!-- mobile nav -->
+<div class="mn" id="mn">
+  <div class="mn-bk" id="mnBk"></div>
+  <div class="mn-p">
+    <button class="mn-cl" id="mnCl"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <a href="#story">我們的故事</a><a href="#attractions">景點</a><a href="#products">商品</a><a href="#about-shop">店家介紹</a>
+  </div>
+</div>
 
-    // ===== Cookie helpers =====
-    function getStampData() {
-      var match = document.cookie.match(new RegExp("(?:^|; )" + COOKIE_NAME + "=([^;]*)"));
-      if (!match) return {};
-      try {
-        return JSON.parse(atob(decodeURIComponent(match[1])));
-      } catch (e) {
-        return {};
-      }
-    }
+<!-- ══════ STAMP CARD MODAL ══════ -->
+<div class="sm-modal" id="stampModal" aria-hidden="true" role="dialog" aria-labelledby="smTitle">
+  <div class="sm-bk" id="smBk"></div>
+  <div class="sm-panel">
+    <button class="sm-close" id="smClose" aria-label="關閉"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div class="sm-head">
+      <div class="sm-label">Loyalty Card</div>
+      <h3 id="smTitle"><em>集點</em>卡</h3>
+      <div class="sm-sub">集滿 3 家即可兌換扭蛋</div>
+    </div>
+    <div class="sm-stamps" id="smStamps"></div>
+    <div class="sm-content" id="smContent"></div>
+  </div>
+</div>
 
-    function saveStampData(data) {
-      var encoded = encodeURIComponent(btoa(JSON.stringify(data)));
-      var expires = new Date(Date.now() + COOKIE_DAYS * 86400000).toUTCString();
-      document.cookie = COOKIE_NAME + "=" + encoded + "; expires=" + expires + "; path=/; SameSite=Lax";
-    }
+<!-- ══════ HERO ══════ -->
+<section class="hero" id="hero">
+  <div class="hero-bg" id="heroBg">
+    <div class="hero-bg-slide"><div class="bg-fill hbg1"></div></div>
+    <div class="hero-bg-slide"><div class="bg-fill hbg2"></div></div>
+    <div class="hero-bg-slide"><div class="bg-fill hbg3"></div></div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-tag"><span class="td"></span><span id="heroTagText">Banner 1</span></div>
+    <h2 class="hero-h" id="heroH"><em>Heading</em><br>Subheading Text</h2>
+    <p class="hero-p" id="heroP">Description area for the hero banner. Replace this placeholder with your own copy. This will look stunning with a real photograph behind it.</p>
+    <a href="#" class="hero-cta"><span>Call to Action</span><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+  </div>
+  <div class="hero-dots" id="heroDots">
+    <div class="hero-dot active" data-i="0"></div>
+    <div class="hero-dot" data-i="1"></div>
+    <div class="hero-dot" data-i="2"></div>
+  </div>
+  <div class="hero-scroll"><span>Scroll</span><div class="sc-line"></div></div>
+</section>
 
-    // ===== Stamp count =====
-    function countStamps(data) {
-      var count = 0;
-      for (var key in data) {
-        if (data[key] && data[key].stamped === true) count++;
-      }
-      return count;
-    }
+<!-- ══════ CATEGORY BAR ══════ -->
+<div class="catbar">
+  <div class="catbar-inner">
+    <a href="#story"><span class="cat-dot"></span>我們的故事</a>
+    <a href="#attractions"><span class="cat-dot"></span>景點導覽</a>
+    <a href="#products"><span class="cat-dot"></span>精選商品</a>
+    <a href="#about-shop"><span class="cat-dot"></span>店家介紹</a>
+    <a href="#gallery"><span class="cat-dot"></span>相簿</a>
+  </div>
+</div>
 
-    // ===== Render stamp circles =====
-    function renderStamps(data, currentShopId) {
-      var container = document.getElementById("stamps");
-      container.innerHTML = "";
-      for (var i = 1; i <= TOTAL_SHOPS; i++) {
-        var el = document.createElement("div");
-        el.className = "stamp";
-        var key = "shop_" + i;
-        if (data[key] && data[key].stamped) {
-          if (currentShopId === i) {
-            el.className += " current";
-          } else {
-            el.className += " collected";
-          }
-          el.textContent = "\u2713";
-        } else {
-          el.textContent = i;
-        }
-        container.appendChild(el);
-      }
-    }
+<!-- ══════ PHOTO STORY 1 ══════ -->
+<section class="photo-story rv" id="story">
+  <div class="photo-story-inner">
+    <div class="ps-text">
+      <div class="ps-label">Our Story</div>
+      <h3 class="ps-h"><em>Story</em> Headline</h3>
+      <p class="ps-p">This section is designed for storytelling with a large photo alongside. Replace the gradient placeholder with a beautiful photograph to tell your brand story.</p>
+      <a href="#" class="ps-link">Read More <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    </div>
+    <div class="ps-img"><div class="ph ps-img-1">Photo</div></div>
+  </div>
+</section>
 
-    // ===== Redeem =====
-    function redeem(data) {
-      var content = document.getElementById("content");
-      var btn = document.getElementById("redeemBtn");
-      if (btn) {
-        btn.disabled = true;
-        btn.textContent = "處理中...";
-      }
+<!-- ══════ FULLBLEED PHOTO ══════ -->
+<div class="fullbleed rv">
+  <div class="fb-bg fb-bg-1"></div>
+  <div class="fb-content">
+    <h3>Full-width Photo Section</h3>
+    <p>Replace this gradient with a full-bleed landscape photograph. The text overlays beautifully on top. Perfect for scenic views or atmospheric imagery.</p>
+  </div>
+</div>
 
-      content.innerHTML =
-        '<div class="spinner"></div>' +
-        '<p class="loading-text">正在產生兌換 QR Code，請稍候...</p>';
+<!-- ══════ PHOTO STORY 2 (reversed) ══════ -->
+<section class="photo-story rv">
+  <div class="photo-story-inner" style="direction:rtl">
+    <div class="ps-text" style="direction:ltr">
+      <div class="ps-label">Attractions</div>
+      <h3 class="ps-h"><em>Explore</em> the Area</h3>
+      <p class="ps-p">Another story section with reversed layout for visual rhythm. Alternate photo placement keeps the page dynamic as users scroll through your content.</p>
+      <a href="#" class="ps-link">Discover More <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    </div>
+    <div class="ps-img" style="direction:ltr"><div class="ph ps-img-2">Photo</div></div>
+  </div>
+</section>
 
-      fetch(API_BASE + "/api/sign", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stamps: data })
-      })
-        .then(function (res) {
-          if (!res.ok) throw new Error("server error");
-          return res.json();
-        })
-        .then(function (json) {
-          content.innerHTML =
-            '<div id="qrcode"></div>' +
-            '<p class="qr-hint">QR Code 5 分鐘內有效，請儘速出示給扭蛋機掃描</p>';
-          new QRCode(document.getElementById("qrcode"), {
-            text: json.qr_payload,
-            width: 256,
-            height: 256
-          });
-        })
-        .catch(function () {
-          content.innerHTML =
-            '<p class="message error">系統忙碌，請稍後再試</p>' +
-            '<button class="btn btn-redeem" onclick="redeem(getStampData())">重新兌換</button>';
-        });
-    }
+<!-- ══════ GALLERY ══════ -->
+<section class="gallery rv" id="gallery">
+  <div class="gallery-inner">
+    <div class="section-head"><h3>Photo Gallery<span class="sub">Replace gradients with your photos</span></h3></div>
+    <div class="gallery-grid">
+      <div class="gallery-item gi-tall"><div class="gi-ph gp-1">Photo 1</div><div class="gi-overlay"><span>Caption Text</span></div></div>
+      <div class="gallery-item gi-wide"><div class="gi-ph gp-2">Photo 2</div><div class="gi-overlay"><span>Caption Text</span></div></div>
+      <div class="gallery-item"><div class="gi-ph gp-3" style="aspect-ratio:1">Photo 3</div><div class="gi-overlay"><span>Caption Text</span></div></div>
+      <div class="gallery-item"><div class="gi-ph gp-4">Photo 4</div><div class="gi-overlay"><span>Caption Text</span></div></div>
+      <div class="gallery-item"><div class="gi-ph gp-5">Photo 5</div><div class="gi-overlay"><span>Caption Text</span></div></div>
+      <div class="gallery-item"><div class="gi-ph gp-6" style="aspect-ratio:16/9">Photo 6</div><div class="gi-overlay"><span>Caption Text</span></div></div>
+    </div>
+  </div>
+</section>
 
-    // ===== Stamp logic (runs after shop_id is resolved) =====
-    function applyStamp(shopId) {
-      var data = getStampData();
-      var content = document.getElementById("content");
+<!-- ══════ SECTION A ══════ -->
+<section class="section rv" id="products">
+  <div class="section-head"><h3>Section A<span class="sub">Product Grid 3&times;2</span></h3></div>
+  <div class="pgrid">
+    <div class="pcard"><span class="pbadge b-gold">Badge A</span><div class="pimg pi-a">A1</div><div class="pinfo"><div class="pname">Product Name A1 (specification)</div><div class="pprices"><span class="pprice">NT$280</span><span class="porig">NT$300</span></div></div></div>
+    <div class="pcard"><span class="pbadge b-teal">Badge B</span><div class="pimg pi-b">A2</div><div class="pinfo"><div class="pname">Product Name A2 (specification)</div><div class="pprices"><span class="pprice">NT$180</span><span class="porig">NT$200</span></div></div></div>
+    <div class="pcard"><span class="pbadge b-teal">Badge B</span><div class="pimg pi-c">A3</div><div class="pinfo"><div class="pname">Product Name A3 (specification)</div><div class="pprices"><span class="pprice">NT$180</span><span class="porig">NT$200</span></div></div></div>
+    <div class="pcard"><span class="pbadge b-rose">Badge C</span><div class="pimg pi-d">A4</div><div class="pinfo"><div class="pname">Product Name A4 (specification)</div><div class="pprices"><span class="pprice">NT$480</span><span class="porig">NT$500</span></div></div></div>
+    <div class="pcard"><span class="pbadge b-gold">Badge D</span><div class="pimg pi-e">A5</div><div class="pinfo"><div class="pname">Product Name A5 (specification)</div><div class="pprices"><span class="pprice">NT$450</span></div></div></div>
+    <div class="pcard"><span class="pbadge b-dark">Badge E</span><div class="pimg pi-f">A6</div><div class="pinfo"><div class="pname">Product Name A6 (specification)</div><div class="pprices"><span class="pprice">NT$450</span><span class="porig">NT$480</span></div></div></div>
+  </div>
+</section>
 
-      var key = "shop_" + shopId;
+<!-- ══════ INFO BANNER ══════ -->
+<div class="info-ban"><div class="info-ban-inner"><h4>Full-width info banner area</h4><p>Secondary description text</p></div></div>
 
-      // Already stamped
-      if (data[key] && data[key].stamped === true) {
-        renderStamps(data, null);
-        var count = countStamps(data);
-        content.innerHTML =
-          '<p class="message already">店家 #' + shopId + ' 已集點</p>' +
-          '<p class="progress">目前進度：' + count + ' / ' + REQUIRED_STAMPS + ' 家</p>';
-        if (count >= REQUIRED_STAMPS) {
-          content.innerHTML +=
-            '<button class="btn btn-redeem" id="redeemBtn" onclick="redeem(getStampData())">兌換扭蛋</button>';
-        }
-        return;
-      }
+<!-- ══════ FULLBLEED 2 ══════ -->
+<div class="fullbleed rv">
+  <div class="fb-bg fb-bg-2"></div>
+  <div class="fb-content">
+    <h3>Another Photo Section</h3>
+    <p>Use this for a dramatic landscape or an atmospheric product shot. The parallax-like effect creates depth as users scroll.</p>
+  </div>
+</div>
 
-      // New stamp
-      data[key] = {
-        stamped: true,
-        timestamp: new Date().toISOString()
-      };
-      saveStampData(data);
+<!-- ══════ SECTION B ══════ -->
+<section class="section section-alt rv">
+  <div class="section-head"><h3>Section B<span class="sub">Product Grid 4&times;1</span></h3></div>
+  <div class="alt-grid">
+    <div class="pcard"><span class="pbadge b-teal">Badge F</span><div class="pimg pi-d">B1</div><div class="pinfo"><div class="pname">Product Name B1</div><div class="pprices"><span class="pprice">NT$2,200</span><span class="porig">NT$4,800</span></div></div></div>
+    <div class="pcard"><span class="pbadge b-teal">Badge F</span><div class="pimg pi-g">B2</div><div class="pinfo"><div class="pname">Product Name B2</div><div class="pprices"><span class="pprice">NT$2,200</span><span class="porig">NT$4,800</span></div></div></div>
+    <div class="pcard"><span class="pbadge b-teal">Badge F</span><div class="pimg pi-h">B3</div><div class="pinfo"><div class="pname">Product Name B3</div><div class="pprices"><span class="pprice">NT$3,330</span><span class="porig">NT$8,000</span></div></div></div>
+    <div class="pcard"><span class="pbadge b-teal">Badge F</span><div class="pimg pi-e">B4</div><div class="pinfo"><div class="pname">Product Name B4</div><div class="pprices"><span class="pprice">NT$5,000</span><span class="porig">NT$12,000</span></div></div></div>
+  </div>
+</section>
 
-      var count = countStamps(data);
-      renderStamps(data, shopId);
+<!-- ══════ SECTION C ══════ -->
+<section class="section rv">
+  <div class="section-head"><h3>Section C<span class="sub">Product Grid 3&times;1</span></h3></div>
+  <div class="top-grid">
+    <div class="pcard"><span class="pbadge b-gold">Badge G</span><div class="pimg pi-c">C1</div><div class="pinfo"><div class="pname">Product Name C1</div><div class="pprices"><span class="pprice">NT$900</span><span class="porig">NT$1,000</span></div></div></div>
+    <div class="pcard"><span class="pbadge b-rose">Badge H</span><div class="pimg pi-f">C2</div><div class="pinfo"><div class="pname">Product Name C2</div><div class="pprices"><span class="pprice">NT$1,400</span></div></div></div>
+    <div class="pcard"><span class="pbadge b-gold">Badge A</span><div class="pimg pi-a">C3</div><div class="pinfo"><div class="pname">Product Name C3</div><div class="pprices"><span class="pprice">NT$280</span><span class="porig">NT$300</span></div></div></div>
+  </div>
+</section>
 
-      if (count >= REQUIRED_STAMPS) {
-        content.innerHTML =
-          '<p class="message success">店家 #' + shopId + ' 集點成功！</p>' +
-          '<p class="progress">已集滿 ' + count + ' 家，可以兌換了！</p>' +
-          '<button class="btn btn-redeem" id="redeemBtn" onclick="redeem(getStampData())">兌換扭蛋</button>';
-      } else {
-        content.innerHTML =
-          '<p class="message success">店家 #' + shopId + ' 集點成功！</p>' +
-          '<p class="progress">目前進度：' + count + ' / ' + REQUIRED_STAMPS + ' 家</p>';
-      }
-    }
+<!-- ══════ SECTION D ══════ -->
+<section class="card-sec rv" id="attractions">
+  <div class="section-head"><h3>Section D<span class="sub">Card Grid 5-col</span></h3></div>
+  <div class="card-grid">
+    <div class="ccard"><div class="cthumb ct-1">D1</div><div class="cbody"><h5>Card Title D1</h5><p>Card description text</p><span class="clink">Link &rarr;</span></div></div>
+    <div class="ccard"><div class="cthumb ct-2">D2</div><div class="cbody"><h5>Card Title D2</h5><p>Card description text</p><span class="clink">Link &rarr;</span></div></div>
+    <div class="ccard"><div class="cthumb ct-3">D3</div><div class="cbody"><h5>Card Title D3</h5><p>Card description text</p><span class="clink">Link &rarr;</span></div></div>
+    <div class="ccard"><div class="cthumb ct-4">D4</div><div class="cbody"><h5>Card Title D4</h5><p>Card description text</p><span class="clink">Link &rarr;</span></div></div>
+    <div class="ccard"><div class="cthumb ct-5">D5</div><div class="cbody"><h5>Card Title D5</h5><p>Card description text</p><span class="clink">Link &rarr;</span></div></div>
+  </div>
+</section>
 
-    // ===== Main =====
-    (function main() {
-      var params = new URLSearchParams(window.location.search);
-      var token = params.get("shop");
-      var data = getStampData();
-      var content = document.getElementById("content");
+<!-- ══════ SUBSCRIBE ══════ -->
+<div class="subscribe">
+  <div class="sub-inner">
+    <span class="sub-logo">S</span>
+    <div class="sub-text"><h4>Subscribe Newsletter</h4><p>Stay updated with our latest news and exclusive offers.</p></div>
+    <a href="#" class="sub-btn">Subscribe <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+  </div>
+</div>
 
-      // No shop param — just show current stamp card status
-      if (!token) {
-        renderStamps(data, null);
-        var count = countStamps(data);
-        if (count >= REQUIRED_STAMPS) {
-          content.innerHTML =
-            '<p class="message ready">已集滿 ' + count + ' 家，可以兌換了！</p>' +
-            '<button class="btn btn-redeem" id="redeemBtn" onclick="redeem(getStampData())">兌換扭蛋</button>';
-        } else if (count > 0) {
-          content.innerHTML =
-            '<p class="progress">目前進度：' + count + ' / ' + REQUIRED_STAMPS + ' 家</p>';
-        } else {
-          content.innerHTML =
-            '<p class="no-shop">掃描店家 QR Code 開始集點吧！</p>';
-        }
-        return;
-      }
+<!-- ══════ FOOTER ══════ -->
+<footer class="footer" id="about-shop">
+  <div class="footer-inner">
+    <div>
+      <h4>About Us</h4>
+      <ul><li><a href="#">About Link 1</a></li><li><a href="#">About Link 2</a></li><li><a href="#">About Link 3</a></li><li><a href="#">About Link 4</a></li><li><a href="#">About Link 5</a></li><li><a href="#">About Link 6</a></li><li><a href="#">About Link 7</a></li><li><a href="#">About Link 8</a></li></ul>
+    </div>
+    <div>
+      <h4>Service</h4>
+      <ul><li><a href="#">Service Link 1</a></li><li><a href="#">Service Link 2</a></li><li><a href="#">Service Link 3</a></li><li><a href="#">Service Link 4</a></li><li><a href="#">Service Link 5</a></li><li><a href="#">Service Link 6</a></li></ul>
+    </div>
+    <div>
+      <h4>Contact Us</h4>
+      <p><span class="clabel">Office A</span> / Company Name</p>
+      <p>Hours / Mon–Fri 09:00~16:00</p>
+      <p>Phone / 02-1234-5678</p>
+      <p>E-MAIL / info@example.com</p>
+      <p>Address Line 1</p>
+      <hr class="fdiv">
+      <p><span class="clabel">Office B</span> / Branch Name</p>
+      <p>Hours / Mon–Sun 09:00~17:00</p>
+      <p>Phone / 06-1234-5678</p>
+      <p>E-MAIL / info@example.com</p>
+      <p>Address Line 2</p>
+    </div>
+    <div>
+      <h4>Social Media</h4>
+      <div class="socials">
+        <a href="#" class="soc" aria-label="Facebook"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+        <a href="#" class="soc" aria-label="LINE"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.82 2 10.5c0 3.27 2.35 6.1 5.85 7.5l-.65 2.4c-.1.35.3.65.6.45L11 19c.33.03.66.05 1 .05 5.52 0 10-3.82 10-8.55C22 5.82 17.52 2 12 2z"/></svg></a>
+        <a href="#" class="soc" aria-label="Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg></a>
+      </div>
+      <div style="margin-top:32px">
+        <span style="font-family:var(--fd);font-size:20px;font-weight:300;font-style:italic;color:var(--gold);letter-spacing:2px">S</span>
+        <p style="margin-top:8px;font-size:11px;color:rgba(255,255,255,.25);line-height:1.8">Tagline Line 1<br>Tagline Line 2</p>
+      </div>
+    </div>
+  </div>
+  <div class="fbot"><a href="#">Privacy Policy</a> ｜ 2025 &copy; Demo Store. All rights reserved.</div>
+</footer>
 
-      // Show loading while resolving token
-      renderStamps(data, null);
-      content.innerHTML = '<div class="spinner"></div><p class="loading-text">驗證中...</p>';
+<button class="btt" id="btt" aria-label="Top"><svg viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg></button>
 
-      fetch(API_BASE + "/api/shop?token=" + encodeURIComponent(token))
-        .then(function(res) { return res.json(); })
-        .then(function(json) {
-          if (!json.shop_id) {
-            content.innerHTML = '<p class="message error">無效的店家 QR Code</p>';
-            return;
-          }
-          var shopId = parseInt(json.shop_id.replace("shop_", ""), 10);
-          applyStamp(shopId);
-        })
-        .catch(function() {
-          content.innerHTML = '<p class="message error">系統忙碌，請稍後再試</p>';
-        });
-    })();
-  </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
