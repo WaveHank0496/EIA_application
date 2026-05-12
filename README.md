@@ -18,13 +18,8 @@
 
 ```toml
 [[kv_namespaces]]
-<<<<<<< HEAD
 binding = "STAMP_CARDS"
 id = "貼上你的 Namespace ID"
-=======
-binding = ""
-id = ""   # ← 換成你的 ID
->>>>>>> 31680a1cb2f884d7067fd1a6f44c7a0e089ae457
 ```
 
 ---
@@ -105,7 +100,7 @@ var API_BASE = 'https://eia-application.jimhankliang.workers.dev';
 ├── css/
 │   └── style.css
 ├── index.html
-├── pyproject.toml       # Python 依賴（cryptography）
+├── pyproject.toml       # Python 依賴（加密用 Web Crypto API，無外部套件）
 ├── wrangler.toml        # Cloudflare 設定（namespace ID，無 secrets）
 ├── .gitignore
 └── README.md
@@ -117,4 +112,4 @@ var API_BASE = 'https://eia-application.jimhankliang.workers.dev';
 
 - `SECRET_KEY` 和 `SHOP_TOKEN_*` **絕對不能** commit 進 Git
 - `app.py` 的 CORS 只開放 `https://wavehank0496.github.io`；本機用 curl 測試時需帶 `-H "Origin: https://wavehank0496.github.io"`
-- 若 `cryptography` 在 Pyodide 上有問題，請回報，改用 Plan B（pycryptodome 或 Web Crypto API FFI）
+- 加密使用 Web Crypto API（`from js import crypto`），不依賴 `cryptography` 套件，Pyodide 環境直接可用

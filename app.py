@@ -1,11 +1,10 @@
 from workers import WorkerEntrypoint, Response
+from js import crypto, Uint8Array
 import json
 import base64
-import os
 import re
 from datetime import datetime, timezone
 from urllib.parse import urlparse, parse_qs
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 # 8 字元大寫英數字，與前端 generateCardId() 使用相同字符集
 CARD_ID_RE = re.compile(r'^[A-Z0-9]{8}$')
@@ -22,6 +21,42 @@ SHOP_CATALOG = {
 
 # 嚴格限定 GitHub Pages origin，防止其他來源繞過 CORS
 ALLOWED_ORIGIN = "https://wavehank0496.github.io"
+
+
+async def encrypt_payload(payload_dict: dict, key_hex: str) -> str:
+    """
+    AES-256-GCM 加密，使用 Web Crypto API（Pyodide 環境無法裝 cryptography lib）。
+    輸出格式：nonce(12 bytes) + ciphertext+tag(N+16 bytes)，base64 urlsafe 編碼。
+    與原本 Python cryptography.AESGCM 的輸出格式完全相同，韌體端解密範本不需修改。
+    """
+    plaintext_bytes = json.dumps(payload_dict, sort_keys=True).encode()
+    key_bytes = bytes.fromhex(key_hex)
+
+    # 匯入 AES-256-GCM key
+    key_buffer = Uint8Array.new(list(key_bytes))
+    crypto_key = await crypto.subtle.importKey(
+        "raw",
+        key_buffer,
+        {"name": "AES-GCM"},
+        False,
+        ["encrypt"],
+    )
+
+    # 產生 12 bytes 隨機 nonce（與 os.urandom(12) 等效）
+    nonce_array = crypto.getRandomValues(Uint8Array.new(12))
+    nonce_bytes = bytes(nonce_array.to_py())
+
+    # 加密；Web Crypto 回傳的 ciphertext 已包含 16 bytes auth tag 在尾端
+    plaintext_buffer = Uint8Array.new(list(plaintext_bytes))
+    ciphertext_buffer = await crypto.subtle.encrypt(
+        {"name": "AES-GCM", "iv": nonce_array},
+        crypto_key,
+        plaintext_buffer,
+    )
+    ciphertext_bytes = bytes(Uint8Array.new(ciphertext_buffer).to_py())
+
+    combined = nonce_bytes + ciphertext_bytes
+    return base64.urlsafe_b64encode(combined).decode()
 
 
 class Default(WorkerEntrypoint):
@@ -177,14 +212,7 @@ class Default(WorkerEntrypoint):
             "issued_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
-        # AES-256-GCM: nonce(12 bytes) 在前、ciphertext+tag 在後，base64 urlsafe
-        # 此格式與原本 Flask app.py 一致，韌體組的解密範本不需要修改
-        key = bytes.fromhex(self.env.SECRET_KEY)
-        aesgcm = AESGCM(key)
-        nonce = os.urandom(12)
-        data = json.dumps(payload, sort_keys=True).encode()
-        ciphertext = aesgcm.encrypt(nonce, data, None)
-        qr_payload = base64.urlsafe_b64encode(nonce + ciphertext).decode()
+        qr_payload = await encrypt_payload(payload, self.env.SECRET_KEY)
 
         return self.json_response({"qr_payload": qr_payload})
 
