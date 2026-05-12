@@ -18,8 +18,8 @@
 
 ```toml
 [[kv_namespaces]]
-binding = "STAMP_CARDS"
-id = "31ac37784e984e53a82b6e94509a23e2"   # ← 換成你的 ID
+binding = ""
+id = ""   # ← 換成你的 ID
 ```
 
 ---
