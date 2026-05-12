@@ -18,8 +18,13 @@
 
 ```toml
 [[kv_namespaces]]
+<<<<<<< HEAD
 binding = "STAMP_CARDS"
 id = "貼上你的 Namespace ID"
+=======
+binding = ""
+id = ""   # ← 換成你的 ID
+>>>>>>> 31680a1cb2f884d7067fd1a6f44c7a0e089ae457
 ```
 
 ---
