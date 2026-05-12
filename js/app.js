@@ -43,7 +43,8 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
 
 /* ══════ STAMP CARD ══════ */
 (function(){
-  var API_BASE = 'https://eia-application.onrender.com';
+  /*var API_BASE = 'https://eia-application.onrender.com';*/
+  var API_BASE = 'eia-application.jimhankliang.workers.dev';  
   var TOTAL_SHOPS = 5, REQUIRED_STAMPS = 3, COOKIE_DAYS = 30;
 
   var modal    = document.getElementById('stampModal');

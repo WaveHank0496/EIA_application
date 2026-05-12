@@ -1,0 +1,10 @@
+# wrangler.toml (Claude Code 會幫你產這個)
+name = "eia-application"
+main = "worker.py"
+compatibility_date = "2026-05-12"
+compatibility_flags = ["python_workers"]
+
+
+#[[kv_namespaces]]
+#binding = "STAMP_CARDS"           # Worker 程式碼裡用這個名稱
+#id = "31ac37784e984e53a82b6e94509a23e2"   # 把上面的 ID 貼這
