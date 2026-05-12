@@ -1,260 +1,225 @@
-import os
-import re
+from workers import WorkerEntrypoint, Response
 import json
 import base64
-import requests
+import os
+import re
 from datetime import datetime, timezone
-
-from dotenv import load_dotenv
-from flask import Flask, request, jsonify
-
-load_dotenv()
-from flask_cors import CORS
+from urllib.parse import urlparse, parse_qs
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-app = Flask(__name__)
-# 僅開放 GitHub Pages，防止其他來源偽造 CORS 預檢通過
-CORS(app, origins=["https://wavehank0496.github.io"])
-
-# UUID v4：version nibble 固定為 4，variant bits 固定為 8/9/a/b
-UUID_RE = re.compile(
-    r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
-    re.IGNORECASE,
-)
+# 8 字元大寫英數字，與前端 generateCardId() 使用相同字符集
+CARD_ID_RE = re.compile(r'^[A-Z0-9]{8}$')
 VALID_SHOPS = {'shop_1', 'shop_2', 'shop_3', 'shop_4', 'shop_5'}
 
+# 店家對照表（informational，供未來擴充）
+SHOP_CATALOG = {
+    "shop_1": "店家A",
+    "shop_2": "店家B",
+    "shop_3": "店家C",
+    "shop_4": "店家D",
+    "shop_5": "店家E",
+}
 
-def get_key() -> bytes:
-    secret = os.environ.get("SECRET_KEY")
-    if not secret:
-        raise RuntimeError("SECRET_KEY environment variable is not set")
-    return bytes.fromhex(secret)
-
-
-# ── Cloudflare KV helpers ──────────────────────────────────────────────────
-
-def _cf_url(key: str) -> str:
-    """Build the Cloudflare KV REST endpoint URL for a given key."""
-    account = os.environ["CF_ACCOUNT_ID"]
-    ns = os.environ["CF_NAMESPACE_ID"]
-    return (
-        f"https://api.cloudflare.com/client/v4/accounts/{account}"
-        f"/storage/kv/namespaces/{ns}/values/{key}"
-    )
+# 嚴格限定 GitHub Pages origin，防止其他來源繞過 CORS
+ALLOWED_ORIGIN = "https://wavehank0496.github.io"
 
 
-def _cf_headers() -> dict:
-    return {"Authorization": f"Bearer {os.environ['CF_API_TOKEN']}"}
+class Default(WorkerEntrypoint):
 
+    async def fetch(self, request):
+        # CORS preflight 必須在路由分發前處理
+        if request.method == "OPTIONS":
+            return Response("", status=204, headers=self.cors_headers())
 
-def kv_get(key: str):
-    """
-    Fetch a KV value.
-    Returns the raw string value, or None if the key does not exist.
-    Raises on any non-404 HTTP error so callers can return 500.
-    """
-    resp = requests.get(_cf_url(key), headers=_cf_headers(), timeout=10)
-    if resp.status_code == 404:
-        return None
-    resp.raise_for_status()
-    return resp.text
+        url = urlparse(str(request.url))
+        path = url.path
+        method = request.method
 
+        if path == "/api/shop" and method == "GET":
+            return await self.handle_shop(request, url)
+        if path == "/api/stamp" and method == "POST":
+            return await self.handle_stamp(request)
+        if path == "/api/sign" and method == "POST":
+            return await self.handle_sign(request)
+        if path == "/api/get_card" and method == "POST":
+            return await self.handle_get_card(request)
 
-def kv_put(key: str, value: str) -> None:
-    """
-    Store a string value in KV.
-    Raises on HTTP error so callers can return 500.
-    """
-    resp = requests.put(
-        _cf_url(key),
-        headers={**_cf_headers(), "Content-Type": "application/json"},
-        data=value.encode(),
-        timeout=10,
-    )
-    resp.raise_for_status()
+        return Response("Not Found", status=404)
 
+    # ── 共用 helper ────────────────────────────────────────────────────────────
 
-# ── Business logic ─────────────────────────────────────────────────────────
+    def cors_headers(self) -> dict:
+        return {
+            "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+        }
 
-def calculate_target_total(stamped_count: int) -> int:
-    """
-    3 章 1 顆、6 章 2 顆、9 章 3 顆。
-    Named function so the formula is visible to the firmware team in one place.
-    """
-    return stamped_count // 3
+    def json_response(self, data: dict, status: int = 200) -> Response:
+        headers = {**self.cors_headers(), "Content-Type": "application/json"}
+        return Response(
+            json.dumps(data, ensure_ascii=False),
+            status=status,
+            headers=headers,
+        )
 
+    # ── /api/shop ──────────────────────────────────────────────────────────────
 
-# ── API endpoints ──────────────────────────────────────────────────────────
+    async def handle_shop(self, request, url) -> Response:
+        """Validate a shop QR token and return its shop_id."""
+        params = parse_qs(url.query)
+        token_list = params.get("token")
+        if not token_list:
+            return self.json_response({"error": "missing_token"}, 400)
+        token = token_list[0]
 
-@app.get("/api/shop")
-def get_shop():
-    """Validate a shop QR token and return its shop_id. Unchanged from original."""
-    token = request.args.get("token")
-    if not token:
-        return jsonify({"error": "missing_token"}), 400
+        shop_map = {
+            self.env.SHOP_TOKEN_1: "shop_1",
+            self.env.SHOP_TOKEN_2: "shop_2",
+            self.env.SHOP_TOKEN_3: "shop_3",
+            self.env.SHOP_TOKEN_4: "shop_4",
+            self.env.SHOP_TOKEN_5: "shop_5",
+        }
+        shop_id = shop_map.get(token)
+        if not shop_id:
+            return self.json_response({"error": "invalid_token"}, 404)
 
-    shop_map = {
-        os.environ.get("SHOP_TOKEN_1"): "shop_1",
-        os.environ.get("SHOP_TOKEN_2"): "shop_2",
-        os.environ.get("SHOP_TOKEN_3"): "shop_3",
-        os.environ.get("SHOP_TOKEN_4"): "shop_4",
-        os.environ.get("SHOP_TOKEN_5"): "shop_5",
-    }
+        return self.json_response({"shop_id": shop_id})
 
-    shop_id = shop_map.get(token)
-    if not shop_id:
-        return jsonify({"error": "invalid_token"}), 404
+    # ── /api/stamp ─────────────────────────────────────────────────────────────
 
-    return jsonify({"shop_id": shop_id})
+    async def handle_stamp(self, request) -> Response:
+        """Write a stamp to KV. Idempotent: re-stamping the same shop
+        updates the timestamp but doesn't double-count."""
+        try:
+            body_text = await request.text()
+            body = json.loads(body_text)
+        except Exception:
+            return self.json_response({"error": "請求格式錯誤"}, 400)
 
+        card_id: str = body.get("card_id", "")
+        shop_id: str = body.get("shop_id", "")
 
-@app.post("/api/stamp")
-def stamp():
-    """
-    Write a stamp to Cloudflare KV.
-    Idempotent: re-stamping the same shop only updates the timestamp,
-    so retrying on network failure is safe.
-    """
-    body = request.get_json(silent=True)
-    if not body:
-        return jsonify({"error": "請求格式錯誤"}), 400
+        if not CARD_ID_RE.match(card_id):
+            return self.json_response({"error": "無效的集點卡 ID"}, 400)
+        if shop_id not in VALID_SHOPS:
+            return self.json_response({"error": "無效的店家 ID"}, 400)
 
-    card_id = body.get("card_id", "")
-    shop_id = body.get("shop_id", "")
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    if not UUID_RE.match(card_id):
-        return jsonify({"error": "無效的集點卡 ID"}), 400
-    if shop_id not in VALID_SHOPS:
-        return jsonify({"error": "無效的店家 ID"}), 400
+        try:
+            raw = await self.env.STAMP_CARDS.get("card:" + card_id)
+        except Exception:
+            return self.json_response({"error": "讀取集點資料失敗，請稍後再試"}, 500)
 
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        if raw is None:
+            # 第一次集點：建立集點卡記錄
+            card: dict = {"stamps": {}, "created_at": now, "last_updated": None}
+        else:
+            try:
+                card = json.loads(raw)
+            except Exception:
+                return self.json_response({"error": "集點資料損毀"}, 500)
 
-    try:
-        raw = kv_get(f"card:{card_id}")
-    except Exception:
-        return jsonify({"error": "讀取集點資料失敗，請稍後再試"}), 500
+        # stamps[shop_id] = ISO timestamp；重複蓋同家店只更新時間，不重複計數
+        card["stamps"][shop_id] = now
+        card["last_updated"] = now
 
-    if raw is None:
-        # First stamp ever: create the card record in KV
-        card = {"stamps": {}, "created_at": now, "last_updated": now}
-    else:
+        try:
+            await self.env.STAMP_CARDS.put("card:" + card_id, json.dumps(card))
+        except Exception:
+            return self.json_response({"error": "儲存集點資料失敗，請稍後再試"}, 500)
+
+        return self.json_response({"success": True, "stamped_count": len(card["stamps"])})
+
+    # ── /api/sign ──────────────────────────────────────────────────────────────
+
+    async def handle_sign(self, request) -> Response:
+        """Generate a redemption QR Code payload.
+        Reads stamps from KV (not from the client) so count cannot be faked.
+        Payload includes target_total for idempotent firmware redemption:
+        firmware computes (target_total - already_dispensed) = balls to give.
+        Wire format is identical to the original Flask version so the firmware
+        team's decryption template works unchanged."""
+        try:
+            body_text = await request.text()
+            body = json.loads(body_text)
+        except Exception:
+            return self.json_response({"error": "請求格式錯誤"}, 400)
+
+        card_id: str = body.get("card_id", "")
+        if not CARD_ID_RE.match(card_id):
+            return self.json_response({"error": "無效的集點卡 ID"}, 400)
+
+        try:
+            raw = await self.env.STAMP_CARDS.get("card:" + card_id)
+        except Exception:
+            return self.json_response({"error": "讀取集點資料失敗，請稍後再試"}, 500)
+
+        if raw is None:
+            return self.json_response({"error": "card_not_found"}, 404)
+
         try:
             card = json.loads(raw)
         except Exception:
-            return jsonify({"error": "集點資料損毀"}), 500
+            return self.json_response({"error": "集點資料損毀"}, 500)
 
-    card["stamps"][shop_id] = {"stamped": True, "timestamp": now}
-    card["last_updated"] = now
+        stamps: dict = card.get("stamps", {})
+        stamped_count = len(stamps)
+        target_total = stamped_count // 3  # 3 章 1 顆、6 章 2 顆、9 章 3 顆
+        if target_total == 0:
+            return self.json_response({"error": "insufficient_stamps"}, 400)
 
-    try:
-        kv_put(f"card:{card_id}", json.dumps(card))
-    except Exception:
-        return jsonify({"error": "儲存集點資料失敗，請稍後再試"}), 500
+        payload = {
+            "stamps": stamps,
+            "card_id": card_id,
+            "target_total": target_total,
+            "issued_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
 
-    stamped_count = sum(
-        1 for v in card["stamps"].values()
-        if isinstance(v, dict) and v.get("stamped") is True
-    )
-    return jsonify({"success": True, "stamped_count": stamped_count})
+        # AES-256-GCM: nonce(12 bytes) 在前、ciphertext+tag 在後，base64 urlsafe
+        # 此格式與原本 Flask app.py 一致，韌體組的解密範本不需要修改
+        key = bytes.fromhex(self.env.SECRET_KEY)
+        aesgcm = AESGCM(key)
+        nonce = os.urandom(12)
+        data = json.dumps(payload, sort_keys=True).encode()
+        ciphertext = aesgcm.encrypt(nonce, data, None)
+        qr_payload = base64.urlsafe_b64encode(nonce + ciphertext).decode()
 
+        return self.json_response({"qr_payload": qr_payload})
 
-@app.post("/api/sign")
-def sign():
-    """
-    Generate a redemption QR Code payload.
-    Reads stamps from KV (not from the client) so the count cannot be faked.
-    Payload includes target_total for idempotent firmware redemption:
-    firmware computes (target_total - already_dispensed) = balls to dispense.
-    Keeps the same AES-256-GCM wire format because the firmware team already
-    has the decryption template.
-    """
-    body = request.get_json(silent=True)
-    if not body or "card_id" not in body:
-        return jsonify({"error": "missing_card_id"}), 400
+    # ── /api/get_card ──────────────────────────────────────────────────────────
 
-    card_id = body["card_id"]
-    if not UUID_RE.match(card_id):
-        return jsonify({"error": "無效的集點卡 ID"}), 400
+    async def handle_get_card(self, request) -> Response:
+        """Cross-browser card recovery.
+        Users who switch browsers enter their 8-char card_id to restore progress."""
+        try:
+            body_text = await request.text()
+            body = json.loads(body_text)
+        except Exception:
+            return self.json_response({"error": "請求格式錯誤"}, 400)
 
-    try:
-        raw = kv_get(f"card:{card_id}")
-    except Exception:
-        return jsonify({"error": "讀取集點資料失敗，請稍後再試"}), 500
+        card_id: str = body.get("card_id", "")
+        if not CARD_ID_RE.match(card_id):
+            return self.json_response({"error": "無效的集點卡 ID"}, 400)
 
-    if raw is None:
-        return jsonify({"error": "insufficient_stamps"}), 400
+        try:
+            raw = await self.env.STAMP_CARDS.get("card:" + card_id)
+        except Exception:
+            return self.json_response({"error": "讀取集點資料失敗，請稍後再試"}, 500)
 
-    try:
-        card = json.loads(raw)
-    except Exception:
-        return jsonify({"error": "集點資料損毀"}), 500
+        if raw is None:
+            return self.json_response({"error": "card_not_found"}, 404)
 
-    stamps = card.get("stamps", {})
-    stamped_count = sum(
-        1 for v in stamps.values()
-        if isinstance(v, dict) and v.get("stamped") is True
-    )
-    target_total = calculate_target_total(stamped_count)
-    if target_total == 0:
-        return jsonify({"error": "insufficient_stamps"}), 400
+        try:
+            card = json.loads(raw)
+        except Exception:
+            return self.json_response({"error": "集點資料損毀"}, 500)
 
-    payload = {
-        "stamps": stamps,
-        "card_id": card_id,
-        "target_total": target_total,
-        "issued_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-    }
-
-    key = get_key()
-    aesgcm = AESGCM(key)
-    nonce = os.urandom(12)
-    data = json.dumps(payload, sort_keys=True).encode()
-    ciphertext = aesgcm.encrypt(nonce, data, None)
-    qr_payload = base64.urlsafe_b64encode(nonce + ciphertext).decode()
-
-    return jsonify({"qr_payload": qr_payload})
-
-
-@app.post("/api/get_card")
-def get_card():
-    """
-    Cross-browser card recovery.
-    Users who switch browsers enter their card_id UUID to restore progress
-    without any login system.
-    """
-    body = request.get_json(silent=True)
-    if not body or "card_id" not in body:
-        return jsonify({"error": "missing_card_id"}), 400
-
-    card_id = body["card_id"]
-    if not UUID_RE.match(card_id):
-        return jsonify({"error": "無效的集點卡 ID"}), 400
-
-    try:
-        raw = kv_get(f"card:{card_id}")
-    except Exception:
-        return jsonify({"error": "讀取集點資料失敗，請稍後再試"}), 500
-
-    if raw is None:
-        return jsonify({"error": "card_not_found"}), 404
-
-    try:
-        card = json.loads(raw)
-    except Exception:
-        return jsonify({"error": "集點資料損毀"}), 500
-
-    stamps = card.get("stamps", {})
-    stamped_count = sum(
-        1 for v in stamps.values()
-        if isinstance(v, dict) and v.get("stamped") is True
-    )
-    return jsonify({
-        "card_id": card_id,
-        "stamps": stamps,
-        "created_at": card.get("created_at", ""),
-        "stamped_count": stamped_count,
-    })
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+        stamps: dict = card.get("stamps", {})
+        return self.json_response({
+            "card_id": card_id,
+            "stamps": stamps,
+            "created_at": card.get("created_at", ""),
+            "stamped_count": len(stamps),
+        })

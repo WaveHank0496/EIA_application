@@ -3,7 +3,7 @@ main = "app.py"
 compatibility_date = "2026-05-12"
 compatibility_flags = ["python_workers"]
 
-# KV namespace binding — STAMP_CARDS is the name used in worker.py (self.env.STAMP_CARDS)
+# KV namespace binding — STAMP_CARDS is the name used in app.py (self.env.STAMP_CARDS)
 # Fill in the real namespace ID after running: wrangler kv namespace create eia_stamp_cards
 [[kv_namespaces]]
 binding = "STAMP_CARDS"
