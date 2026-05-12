@@ -1,6 +1,6 @@
 # wrangler.toml (Claude Code 會幫你產這個)
 name = "eia-application"
-main = "worker.py"
+main = "app.py"
 compatibility_date = "2026-05-12"
 compatibility_flags = ["python_workers"]
 
