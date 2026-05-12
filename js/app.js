@@ -43,8 +43,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
 
 /* ══════ STAMP CARD ══════ */
 (function(){
-  /*var API_BASE = 'https://eia-application.onrender.com';*/
-  var API_BASE = 'eia-application.jimhankliang.workers.dev';  
+  var API_BASE = 'https://eia-application.jimhankliang.workers.dev';
   var TOTAL_SHOPS = 5, REQUIRED_STAMPS = 3, COOKIE_DAYS = 30;
 
   var modal    = document.getElementById('stampModal');
@@ -67,15 +66,17 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
       '; expires=' + exp + '; path=/; SameSite=Lax';
   }
 
-  // ── Card identity (UUID stored in cookie, 30-day limit per browser) ───────
+  // ── Card identity (8-char alphanumeric, 30-day limit per browser) ───────────
 
-  function generateUUIDFallback() {
-    // Fallback for browsers that don't support crypto.randomUUID (pre-2021)
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random() * 16 | 0;
-      var v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
+  function generateCardId() {
+    // Uses crypto.getRandomValues for uniform distribution across 36 chars.
+    // 36^8 ≈ 2.8 trillion combinations — collision probability is negligible.
+    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var bytes = new Uint8Array(8);
+    crypto.getRandomValues(bytes);
+    var id = '';
+    for (var i = 0; i < 8; i++) id += chars[bytes[i] % 36];
+    return id;
   }
 
   function getOrCreateCardId() {
@@ -89,9 +90,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
       if (age < COOKIE_DAYS * 24 * 60 * 60 * 1000) return existing;
     }
 
-    var newId = (window.crypto && window.crypto.randomUUID)
-      ? window.crypto.randomUUID()
-      : generateUUIDFallback();
+    var newId = generateCardId();
     setCookie('card_id', newId, COOKIE_DAYS);
     setCookie('card_created_at', new Date().toISOString(), COOKIE_DAYS);
     return newId;
@@ -110,8 +109,9 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     document.cookie = 'stamp_data=' + enc + '; expires=' + exp + '; path=/; SameSite=Lax';
   }
   function countStamps(d) {
+    // KV stamps format: {shop_1: "ISO timestamp"} — any truthy value = stamped
     var c = 0;
-    for (var k in d) if (d[k] && d[k].stamped === true) c++;
+    for (var k in d) if (d[k]) c++;
     return c;
   }
   function updateBadge() {
@@ -128,7 +128,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
       var el = document.createElement('div');
       el.className = 'sm-stamp';
       var k = 'shop_' + i;
-      if (d[k] && d[k].stamped) {
+      if (d[k]) {
         el.className += curId === i ? ' current' : ' collected';
         el.textContent = '✓';
       } else {
@@ -171,7 +171,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
 
     // If the local cache already marks this shop, show "already stamped"
     // without hitting the API. (Idempotent if cache is wrong; user can retry.)
-    if (d[shopKey] && d[shopKey].stamped === true) {
+    if (d[shopKey]) {
       var c = countStamps(d);
       renderStamps(d, null);
       var h = '<p class="sm-msg sm-msg-already">店家 #' + shopId + ' 已集點</p>' +
@@ -191,7 +191,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     .then(function(r) { if (!r.ok) throw 0; return r.json(); })
     .then(function(j) {
       // Mirror the server's state into the local cache so the badge stays accurate
-      d[shopKey] = {stamped: true, timestamp: new Date().toISOString()};
+      d[shopKey] = new Date().toISOString();  // matches KV format: timestamp string
       saveStampData(d);
       var c = j.stamped_count;
       renderStamps(d, shopId);
@@ -282,7 +282,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     '</button>' +
     '<div id="smRestoreForm" style="display:none;margin-top:10px">' +
       '<input id="smRestoreInput" type="text"' +
-        ' placeholder="請輸入集點卡編號（36 字元）"' +
+        ' placeholder="請輸入集點卡編號（8 字元，例如 X3K9P2WQ）"' +
         ' style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;' +
                'font-size:12px;box-sizing:border-box;outline:none">' +
       '<button id="smRestoreSubmit"' +
@@ -303,10 +303,10 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     var input = document.getElementById('smRestoreInput').value.trim();
     var msg   = document.getElementById('smRestoreMsg');
 
-    // Validate UUID v4 format client-side before hitting the API
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(input)) {
+    // Validate 8-char A-Z0-9 format before hitting the API
+    if (!/^[A-Z0-9]{8}$/i.test(input)) {
       msg.style.color = '#c00';
-      msg.textContent = '格式不正確，請輸入完整的 36 字元集點卡編號';
+      msg.textContent = '格式不正確，請輸入 8 字元英數字編號（例如 X3K9P2WQ）';
       return;
     }
 

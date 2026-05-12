@@ -1,6 +1,10 @@
 venv/
+.venv/
 .env
 .source
 __pycache__/
 *.pyc
 .claude/
+.wrangler/
+node_modules/
+dist/

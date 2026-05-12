@@ -1,0 +1,11 @@
+[project]
+name = "eia-application"
+version = "0.0.0"
+dependencies = [
+    "cryptography",
+]
+
+[dependency-groups]
+dev = [
+    "workers-py",
+]
