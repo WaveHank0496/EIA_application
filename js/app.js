@@ -47,6 +47,10 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
   //var API_BASE = 'https://eia-application.onrender.com'
   var TOTAL_SHOPS = 5, REQUIRED_STAMPS = 3, COOKIE_DAYS = 30;
 
+  // 自製章圖片路徑（填入後會取代數字，例如 'img/shop1.png'）
+  // 空字串 = 暫時顯示數字，等待替換
+  var STAMP_IMAGES = ['', '', '', '', ''];
+
   var modal    = document.getElementById('stampModal');
   var openBtn  = document.getElementById('stampBtn');
   var closeBtn = document.getElementById('smClose');
@@ -121,6 +125,17 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     else { badge.classList.remove('show'); }
   }
 
+  // 在集點卡編號區塊顯示卡號，每次開 modal 或集點後呼叫
+  function showCardId() {
+    var el = document.getElementById('smCardId');
+    if (!el) return;
+    var id = getOrCreateCardId();
+    el.innerHTML =
+      '<div class="sm-cid-label">你的集點卡編號</div>' +
+      '<div class="sm-cid-code">' + id + '</div>' +
+      '<div class="sm-cid-hint">截圖保存此編號，換瀏覽器時輸入可恢復集點進度</div>';
+  }
+
   // ── Render helpers ────────────────────────────────────────────────────────
 
   function renderStamps(d, curId) {
@@ -129,11 +144,26 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
       var el = document.createElement('div');
       el.className = 'sm-stamp';
       var k = 'shop_' + i;
-      if (d[k]) {
-        el.className += curId === i ? ' current' : ' collected';
-        el.textContent = '✓';
+      var stamped = !!d[k];
+      if (stamped) el.className += curId === i ? ' current' : ' collected';
+
+      var imgSrc = STAMP_IMAGES[i - 1];
+      if (imgSrc) {
+        // 有自製圖片：顯示圖片，蓋章後疊加勾勾遮罩
+        var img = document.createElement('img');
+        img.className = 'sm-stamp-img';
+        img.src = imgSrc;
+        img.alt = '店家 ' + i;
+        el.appendChild(img);
+        if (stamped) {
+          var ck = document.createElement('span');
+          ck.className = 'sm-stamp-check';
+          ck.textContent = '✓';
+          el.appendChild(ck);
+        }
       } else {
-        el.textContent = i;
+        // 尚未設定圖片：顯示數字或勾勾
+        el.textContent = stamped ? '✓' : i;
       }
       stampsEl.appendChild(el);
     }
@@ -232,11 +262,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     .then(function(j) {
       contentEl.innerHTML =
         '<div id="sm-qr"></div>' +
-        '<p class="sm-qr-hint">QR Code 5 分鐘內有效，請儘速出示給扭蛋機掃描</p>' +
-        '<p style="font-size:11px;color:#888;margin-top:12px;line-height:1.6">' +
-          '您的集點卡編號（換瀏覽器可恢復進度）：<br>' +
-          '<code style="font-size:10px;word-break:break-all">' + cardId + '</code>' +
-        '</p>';
+        '<p class="sm-qr-hint">QR Code 5 分鐘內有效，請儘速出示給扭蛋機掃描</p>';
       new QRCode(document.getElementById('sm-qr'), {text: j.qr_payload, width: 240, height: 240});
     })
     .catch(function() {
@@ -254,6 +280,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
     renderStatus();
+    showCardId();
   }
   function closeModal() {
     modal.classList.remove('open');
@@ -362,6 +389,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
     renderStamps(getStampData(), null);
+    showCardId();
     contentEl.innerHTML = '<div class="sm-spinner"></div><p class="sm-loading">驗證中...</p>';
     fetch(API_BASE + '/api/shop?token=' + encodeURIComponent(token))
       .then(function(r) { return r.json(); })
