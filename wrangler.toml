@@ -1,16 +1,10 @@
 name = "eia-application"
-main = "app.py"
-compatibility_date = "2026-05-12"
-compatibility_flags = ["python_workers"]
+main = "src/index.js"
+compatibility_date = "2024-09-01"
 
-# KV namespace binding — STAMP_CARDS is the name used in app.py (self.env.STAMP_CARDS)
-# Fill in the real namespace ID after running: wrangler kv namespace create eia_stamp_cards
 [[kv_namespaces]]
 binding = "STAMP_CARDS"
 id = "31ac37784e984e53a82b6e94509a23e2"
-# preview_id is optional; create a separate namespace for local dev if needed
-# preview_id = "REPLACE_WITH_YOUR_PREVIEW_KV_NAMESPACE_ID"
 
-# Secrets (SECRET_KEY, SHOP_TOKEN_1~5) are NOT listed here.
-# Set them with: wrangler secret put SECRET_KEY
-# See README.md for the full list.
+# Secrets (SECRET_KEY, SHOP_TOKEN_1~5) 不放在這裡
+# 用 wrangler secret put <NAME> 設定，或在 Cloudflare Dashboard 設定
