@@ -1,5 +1,25 @@
 // 嚴格限定 GitHub Pages origin，防止其他來源繞過 CORS
-const ALLOWED_ORIGIN = "https://wavehank0496.github.io";
+// const ALLOWED_ORIGIN = "https://wavehank0496.github.io";
+// 改宣告一個全域變數，等待 fetch 觸發時再賦值
+let CURRENT_ORIGIN = "";
+
+function corsHeaders() {
+    return {
+        "Access-Control-Allow-Origin": CURRENT_ORIGIN,
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+    };
+}
+// 改宣告一個全域變數，等待 fetch 觸發時再賦值
+let CURRENT_ORIGIN = "";
+
+function corsHeaders() {
+    return {
+        "Access-Control-Allow-Origin": CURRENT_ORIGIN,
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+    };
+}
 
 // 8 字元大寫英數字，與前端 generateCardId() 使用相同字符集
 const CARD_ID_RE = /^[A-Z0-9]{8}$/;
@@ -336,6 +356,9 @@ async function handleGetCard(request, env) {
 
 export default {
     async fetch(request, env) {
+        // 優先讀取環境變數，若無則防禦性回退至正式網址
+        CURRENT_ORIGIN = env.ALLOWED_ORIGIN || "https://wavehank0496.github.io";
+        
         // OPTIONS preflight 必須在路由分發前攔截，否則瀏覽器預檢會失敗
         if (request.method === "OPTIONS") {
             return new Response(null, { status: 204, headers: corsHeaders() });

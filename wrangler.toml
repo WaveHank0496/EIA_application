@@ -8,3 +8,6 @@ id = "31ac37784e984e53a82b6e94509a23e2"
 
 # Secrets (SECRET_KEY, SHOP_TOKEN_1~5) 不放在這裡
 # 用 wrangler secret put <NAME> 設定，或在 Cloudflare Dashboard 設定
+
+[vars]
+ALLOWED_ORIGIN = "https://wavehank0496.github.io"

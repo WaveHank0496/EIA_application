@@ -88,7 +88,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .hbg3{background:linear-gradient(135deg,#3a2a1a 0%,#8b6f3a 40%,#c9a84c 100%)}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.3) 0%,rgba(0,0,0,.1) 40%,rgba(0,0,0,.4) 100%);z-index:1}
 .hero-content{position:relative;z-index:2;text-align:center;color:#fff;max-width:900px;padding:0 40px}
-.hero-tag{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.3);padding:8px 20px;border-radius:24px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:32px;color:rgba(255,255,255,.8)}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.3);padding:8px 20px;border-radius:24px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;color:rgba(255,255,255,.8)}
 .hero-tag .td{width:5px;height:5px;background:var(--gold);border-radius:50%}
 .hero-h{font-family:var(--fd);font-size:clamp(40px,7vw,88px);font-weight:300;line-height:1.15;letter-spacing:0;margin-bottom:24px}
 .hero-h em{font-style:normal;font-weight:400}
@@ -363,15 +363,38 @@ em[lang="en"]{font-style:italic}
 #sm-qr{animation:smQrReveal .5s var(--ease) both}
 
 /* ══════ STAMP MAP ══════ */
-.sm-stamps{display:block;margin-bottom:10px;padding-top:20px}
+.sm-stamps{display:block;margin-bottom:10px}
 /* 外層：不剪裁，讓圖釘可以溢出到邊界外（北邊圖釘不會被切掉）*/
-.sm-map{position:relative;width:100%;border-radius:16px;overflow:visible}
+/* 分東南西北
+.sm-map{position:relative;width:100%;border-radius:16px;overflow:visible}*/
+.sm-map {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: visible;
+  /* 加上以下兩行：強制解除 4:3 比例，並給定一個剛好容納圖釘的高度 */
+  aspect-ratio: auto !important;
+  height: 90px;
+}
+
 /* 背景層：在內層剪裁，確保底圖保持圓角 */
-.sm-map-bg{position:absolute;inset:0;border-radius:16px;overflow:hidden;background:linear-gradient(160deg,#c8e6c9 0%,#b2dfdb 35%,#80cbc4 65%,#4db6ac 100%);box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.06),var(--shadow);z-index:0}
+/* 有一個色塊
+.sm-map-bg{position:absolute;inset:0;border-radius:16px;overflow:hidden;background:linear-gradient(160deg,#c8e6c9 0%,#b2dfdb 35%,#80cbc4 65%,#4db6ac 100%);box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.06),var(--shadow);z-index:0}*/
+.sm-map-bg{display: none;}
 .sm-map-bg::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(40deg,transparent,transparent 28px,rgba(255,255,255,.07) 28px,rgba(255,255,255,.07) 29px);pointer-events:none}
 
-.sm-pin{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:4px;z-index:1;transition:transform .25s var(--ease)}
-.sm-pin:hover{transform:translate(-50%,-100%) scale(1.15);z-index:10}
+.sm-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  z-index: 1;
+  transition: transform .25s var(--ease);
+  /* 加上這行：給予固定的向下補償值，彌補圖釘本身的高度 */
+  margin-top: 24px;
+}.sm-pin:hover{transform:translate(-50%,-100%) scale(1.15);z-index:10}
 
 .sm-pin-icon{width:40px;height:40px;border-radius:50% 50% 50% 0;rotate:-45deg;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:background .3s,box-shadow .3s,filter .3s;overflow:hidden;flex-shrink:0}
 .sm-pin-icon-inner{display:inline-block;rotate:45deg;font-size:10px;font-weight:700;line-height:1;text-align:center;letter-spacing:0;font-family:var(--fb);color:#fff;white-space:nowrap;max-width:34px;overflow:hidden}
@@ -442,13 +465,73 @@ em[lang="en"]{font-style:italic}
 @media(max-width:480px){.stamp-hint{max-width:200px;right:10px}}
 
 /* ══════ MASCOT ══════ */
-.mascot-wrap{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:8000;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:10px}
-.mascot-bubble{background:#fff;border-radius:16px 16px 16px 4px;padding:12px 16px;font-size:13px;font-weight:500;color:var(--dark);box-shadow:0 4px 20px rgba(0,0,0,.12);max-width:220px;text-align:center;line-height:1.5;opacity:0;transition:opacity .4s var(--ease);order:-1}
-.mascot-bubble.show{opacity:1}
-.mascot-body{width:80px;height:80px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;font-family:var(--fb);box-shadow:0 8px 28px rgba(13,115,119,.4);flex-shrink:0}
-@keyframes mascotEnter{from{transform:translate(calc(-50% - 45vw),calc(-50% + 50vh));opacity:0}to{transform:translate(-50%,-50%);opacity:1}}
-@keyframes mascotLeave{from{transform:translate(-50%,-50%);opacity:1}to{transform:translate(calc(-50% + 45vw),calc(-50% - 44vh));opacity:0}}
-.mascot-wrap.entering{animation:mascotEnter 1s cubic-bezier(.34,1.4,.64,1) forwards}
+.mascot-wrap{position:fixed;top:70%;right: 40px;transform:translateY(-50%);z-index:8000;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:10px}
+.mascot-bubble {
+  background: #fff;
+  border-radius: 16px 16px 16px 4px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dark);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, .12);
+  text-align: center;
+  line-height: 1.5;
+  opacity: 0;
+  transition: opacity .4s var(--ease);
+  order: -1;
+  width: 220px;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}.mascot-bubble.show{opacity:1}
+.mascot-body{width:120px;height:120px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;font-family:var(--fb);box-shadow:0 8px 28px rgba(13,115,119,.4);flex-shrink:0}
+/* 從右下角往左上飛到指定位置 */
+@keyframes mascotEnter {
+  from {
+    transform: translate(20vw, 50vh);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(-50%);
+    opacity: 1;
+  }
+}
+
+/* 從目前位置往右上角飛離 */
+@keyframes mascotLeave {
+  from {
+    transform: translateY(-50%);
+    opacity: 1;
+  }
+
+  to {
+    transform: translate(20vw, -44vh);
+    opacity: 0;
+  }
+}.mascot-wrap.entering{animation:mascotEnter 1s cubic-bezier(.34,1.4,.64,1) forwards}
 .mascot-wrap.leaving{animation:mascotLeave 1.5s cubic-bezier(.4,0,.8,1) forwards}
-@media(prefers-reduced-motion:reduce){.mascot-wrap{display:none!important}}
-@media(max-width:480px){.mascot-body{width:64px;height:64px}.mascot-bubble{font-size:12px;max-width:180px}}
+
+/*為了眼睛不好的人
+@media(prefers-reduced-motion:reduce){.mascot-wrap{display:none!important}}*/
+@media(max-width: 480px) {
+  .mascot-wrap {
+    right: 16px;
+    /* 縮小手機版的右側邊距，把空間還給畫面 */
+  }
+
+  .mascot-body {
+    width: 64px;
+    height: 64px;
+  }
+
+  .mascot-bubble {
+    width: 180px;
+    /* 手機版使用較小的固定寬度 */
+    min-height: 54px;
+    /* 高度等比縮放，防禦文字溢位 */
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+}

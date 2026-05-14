@@ -8,3 +8,5 @@ __pycache__/
 .wrangler/
 node_modules/
 dist/
+UI_ENHANCEMENT_README.md
+.dev.vars

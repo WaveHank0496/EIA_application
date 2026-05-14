@@ -55,18 +55,35 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
 
 /* ══════ STAMP CARD ══════ */
 (function(){
-  var API_BASE = 'https://eia-application.jimhankliang.workers.dev';
+  // 原本是寫死的 但為了做本地端測試
+  // var API_BASE = 'https://eia-application.jimhankliang.workers.dev';
+
+  // 自動判斷是否為本地開發環境
+  var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  // 動態切換 API 基礎路徑
+  var API_BASE = isLocal ? 'http://127.0.0.1:8787' : 'https://eia-application.jimhankliang.workers.dev';
+  
   var REQUIRED_STAMPS = 3, COOKIE_DAYS = 30;
 
   // ── 店家設定（集中在這裡，方便修改）────────────────────────────────────────
   // pos: 百分比座標，x=左右(0左~100右)，y=上下(0上~100下)
   // icon: 填入圖片路徑 'images/icons/shop1.png'，null = 顯示名稱縮寫
+  /* 分東南西北
   var SHOP_CONFIG = {
     shop_1: { name: '店家 A', pos: { x: 50, y: 18 }, icon: null },
     shop_2: { name: '店家 B', pos: { x: 82, y: 48 }, icon: null },
     shop_3: { name: '店家 C', pos: { x: 50, y: 80 }, icon: null },
     shop_4: { name: '店家 D', pos: { x: 18, y: 48 }, icon: null },
     shop_5: { name: '店家 E', pos: { x: 50, y: 48 }, icon: null },
+  };
+  */
+  var SHOP_CONFIG = {
+    // y 全部設為 50 (垂直置中)，x 從 10 到 90 等距散佈
+    shop_1: { name: '店家 A', pos: { x: 10, y: 50 }, icon: null },
+    shop_2: { name: '店家 B', pos: { x: 30, y: 50 }, icon: null },
+    shop_3: { name: '店家 C', pos: { x: 50, y: 50 }, icon: null },
+    shop_4: { name: '店家 D', pos: { x: 70, y: 50 }, icon: null },
+    shop_5: { name: '店家 E', pos: { x: 90, y: 50 }, icon: null },
   };
 
   // ── 地圖底圖設定 ───────────────────────────────────────────────────────────
@@ -676,7 +693,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     hint.className = 'stamp-hint';
     hint.innerHTML =
       '<button class="stamp-hint-close" id="stampHintClose" aria-label="關閉">×</button>' +
-      '<p class="stamp-hint-msg">🎁 走訪 3 家店即可兌換扭蛋好禮</p>' +
+      '<p class="stamp-hint-msg">走訪 3 家店即可兌換扭蛋好禮！</p>' +
       '<p class="stamp-hint-sub">點擊右上角集點卡開始 ↗</p>';
     document.body.appendChild(hint);
 
@@ -696,12 +713,13 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
   function gc(n){var m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?m[1]:null;}
   if (gc('mascot_seen')) return;
 
-  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var exp = new Date(Date.now() + 30*86400000).toUTCString();
-  if (reduced) {
-    document.cookie = 'mascot_seen=1; expires=' + exp + '; path=/; SameSite=Lax';
-    return;
-  }
+  // 這邊是根據使用者的電腦設定來看要不要跳出 因為一些眼睛不好的人不喜歡飛出來的東西
+  //var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  //var exp = new Date(Date.now() + 30*86400000).toUTCString();
+  //if (reduced) {
+  //  document.cookie = 'mascot_seen=1; expires=' + exp + '; path=/; SameSite=Lax';
+  //  return;
+  //}
 
   setTimeout(function() {
     var wrap = document.createElement('div');
@@ -720,7 +738,8 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     img.alt = '東澳小精靈';
     img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:50%';
     img.onload = function(){ body.innerHTML = ''; body.appendChild(img); body.style.cssText = 'background:transparent;box-shadow:none'; };
-    img.src = 'images/mascot.png';
+    //img.src = 'images/mascot.png';
+    img.src = 'images/mascot_test2.png'
 
     wrap.appendChild(bubble);
     wrap.appendChild(body);
@@ -735,7 +754,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     setTimeout(function() {
       bubble.style.opacity = '0';
       setTimeout(function() {
-        bubble.textContent = '右上角是集點卡，記得來玩集點換扭蛋！';
+        bubble.textContent = '右上角是集點卡，記得來玩喔！';
         bubble.style.opacity = '1';
       }, 300);
     }, 4000);
