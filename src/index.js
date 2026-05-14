@@ -16,6 +16,7 @@ function corsHeaders() {
     };
 }
 
+
 // 所有回應都帶 CORS header，前端才能讀到 body
 function jsonResponse(data, status = 200) {
     return new Response(JSON.stringify(data), {
@@ -303,6 +304,7 @@ async function handleAdminStats(request, env) {
 
 // 跨瀏覽器還原集點卡；使用者換瀏覽器時輸入 8 字元 card_id 取回進度
 async function handleGetCard(request, env) {
+    
     let body;
     try {
         body = await request.json();

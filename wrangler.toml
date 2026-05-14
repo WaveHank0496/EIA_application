@@ -11,3 +11,11 @@ id = "31ac37784e984e53a82b6e94509a23e2"
 
 [vars]
 ALLOWED_ORIGIN = "https://wavehank0496.github.io"
+
+# --- 定義一個叫 "preview" 的平行時空 ---
+[env.preview]
+name = "eia-application-preview" # 部署上去後，這會是一個獨立的 Worker
+vars = { ALLOWED_ORIGIN = "http://127.0.0.1:5500", SHOP_TOKEN_1 = "be8f985afe8f54bc03b2579273c208f8"}
+kv_namespaces = [
+  { binding = "STAMP_CARDS", id = "31ac37784e984e53a82b6e94509a23e2" } 
+]
