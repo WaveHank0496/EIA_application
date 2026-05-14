@@ -383,21 +383,37 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     renderStamps(currentStamps, null);
     showCardId();
     contentEl.innerHTML = '<div class="sm-spinner"></div><p class="sm-loading">驗證中...</p>';
-    fetch(API_BASE + '/api/shop?token=' + encodeURIComponent(token))
-      .then(function(r) { return r.json(); })
-      .then(function(j) {
-        if (!j.shop_id) {
-          contentEl.innerHTML = '<p class="sm-msg sm-msg-error">無效的店家 QR Code</p>';
-          return;
-        }
-        var shopId = parseInt(j.shop_id.replace('shop_', ''), 10);
-        applyStamp(shopId);
-        if (history.replaceState) {
-          history.replaceState({}, '', location.pathname + location.hash);
-        }
+
+    var qrCardId = getOrCreateCardId();
+    Promise.all([
+      fetch(API_BASE + '/api/shop?token=' + encodeURIComponent(token))
+        .then(function(r) { return r.json(); }),
+      fetch(API_BASE + '/api/get_card', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({card_id: qrCardId})
+      }).then(function(r) {
+        if (r.status === 404) return {stamps: {}};
+        if (!r.ok) return {stamps: {}};
+        return r.json();
       })
-      .catch(function() {
-        contentEl.innerHTML = '<p class="sm-msg sm-msg-error">系統忙碌，請稍後再試</p>';
-      });
+    ])
+    .then(function(results) {
+      var shopData = results[0];
+      var cardData = results[1];
+      if (!shopData.shop_id) {
+        contentEl.innerHTML = '<p class="sm-msg sm-msg-error">無效的店家 QR Code</p>';
+        return;
+      }
+      currentStamps = cardData.stamps || {};
+      var shopId = parseInt(shopData.shop_id.replace('shop_', ''), 10);
+      applyStamp(shopId);
+      if (history.replaceState) {
+        history.replaceState({}, '', location.pathname + location.hash);
+      }
+    })
+    .catch(function() {
+      contentEl.innerHTML = '<p class="sm-msg sm-msg-error">系統忙碌，請稍後再試</p>';
+    });
   }
 })();
