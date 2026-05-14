@@ -62,7 +62,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
   // pos: 百分比座標，x=左右(0左~100右)，y=上下(0上~100下)
   // icon: 填入圖片路徑 'images/icons/shop1.png'，null = 顯示名稱縮寫
   var SHOP_CONFIG = {
-    shop_1: { name: '店家 A', pos: { x: 50, y: 12 }, icon: null },
+    shop_1: { name: '店家 A', pos: { x: 50, y: 18 }, icon: null },
     shop_2: { name: '店家 B', pos: { x: 82, y: 48 }, icon: null },
     shop_3: { name: '店家 C', pos: { x: 50, y: 80 }, icon: null },
     shop_4: { name: '店家 D', pos: { x: 18, y: 48 }, icon: null },
@@ -160,12 +160,17 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
 
     var mapEl = document.createElement('div');
     mapEl.className = 'sm-map';
-    if (MAP_CONFIG.background) {
-      mapEl.style.backgroundImage = 'url(' + MAP_CONFIG.background + ')';
-      mapEl.style.backgroundSize = 'cover';
-      mapEl.style.backgroundPosition = 'center';
-    }
     mapEl.style.aspectRatio = MAP_CONFIG.aspect_ratio;
+
+    // 背景層（overflow:hidden 只作用在此），圖釘層在外面可以溢出
+    var bgEl = document.createElement('div');
+    bgEl.className = 'sm-map-bg';
+    if (MAP_CONFIG.background) {
+      bgEl.style.backgroundImage = 'url(' + MAP_CONFIG.background + ')';
+      bgEl.style.backgroundSize = 'cover';
+      bgEl.style.backgroundPosition = 'center';
+    }
+    mapEl.appendChild(bgEl);
 
     for (var key in SHOP_CONFIG) {
       var cfg = SHOP_CONFIG[key];
@@ -404,18 +409,20 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     contentEl.innerHTML =
       '<div class="sm-fv">' +
         '<p class="sm-fv-title">歡迎來到東澳集點！</p>' +
-        '<p class="sm-fv-sub">你還沒有集點卡，請選擇以下方式繼續：</p>' +
-        '<button class="sm-btn sm-btn-primary sm-fv-new" id="smFvNew" disabled>建立新的集點卡</button>' +
-        '<button class="sm-btn sm-fv-restore" id="smFvRestore" disabled>我有集點卡編號</button>' +
+        '<p class="sm-fv-sub">你還沒有集點卡，請選擇繼續：</p>' +
+        // PRIMARY：我有集點卡編號（主視覺，長輩跨瀏覽器需求多）
+        '<button class="sm-btn sm-btn-primary sm-fv-restore-btn" id="smFvRestore" disabled>我有集點卡編號</button>' +
         '<div class="sm-fv-restore-wrap" id="smFvRestoreWrap" style="display:none">' +
           '<input id="smFvRestoreInput" type="text" class="sm-fv-input"' +
             ' placeholder="輸入 8 字元編號，例如 X3K9P2WQ">' +
           '<button class="sm-btn sm-btn-primary sm-fv-submit" id="smFvSubmit">確認恢復</button>' +
           '<p class="sm-fv-err" id="smFvErr"></p>' +
         '</div>' +
+        '<div class="sm-fv-divider">── 或 ──</div>' +
+        // SECONDARY：建立新的（小字連結，新建只發生一次）
+        '<button class="sm-fv-new" id="smFvNew" disabled>第一次來？建立新的集點卡</button>' +
         (inApp
-          ? '<p class="sm-fv-inapp-warn">⚠️ 你目前在 LINE／Facebook 內建瀏覽器中。' +
-              '建議截圖保存集點卡編號，以便日後在其他瀏覽器中恢復進度。</p>'
+          ? '<p class="sm-fv-inapp-warn">💡 從 LINE 等 App 進來會跟瀏覽器分開，記得保存集點卡編號</p>'
           : '') +
       '</div>';
   }
@@ -654,4 +661,99 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
       });
     }
   }
+})();
+
+/* ══════ STAMP HINT TOOLTIP ══════ */
+(function(){
+  var params = new URLSearchParams(location.search);
+  if (params.get('shop')) return;
+  function gc(n){var m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?m[1]:null;}
+  if (gc('card_id') || gc('seen_hint')) return;
+
+  setTimeout(function() {
+    var hint = document.createElement('div');
+    hint.id = 'stampHint';
+    hint.className = 'stamp-hint';
+    hint.innerHTML =
+      '<button class="stamp-hint-close" id="stampHintClose" aria-label="關閉">×</button>' +
+      '<p class="stamp-hint-msg">🎁 走訪 3 家店即可兌換扭蛋好禮</p>' +
+      '<p class="stamp-hint-sub">點擊右上角集點卡開始 ↗</p>';
+    document.body.appendChild(hint);
+
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ hint.classList.add('show'); }); });
+
+    document.getElementById('stampHintClose').addEventListener('click', function() {
+      hint.classList.remove('show');
+      setTimeout(function(){ if (hint.parentNode) hint.parentNode.removeChild(hint); }, 320);
+      var exp = new Date(Date.now() + 30*86400000).toUTCString();
+      document.cookie = 'seen_hint=1; expires=' + exp + '; path=/; SameSite=Lax';
+    });
+  }, 1500);
+})();
+
+/* ══════ MASCOT ══════ */
+(function(){
+  function gc(n){var m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?m[1]:null;}
+  if (gc('mascot_seen')) return;
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var exp = new Date(Date.now() + 30*86400000).toUTCString();
+  if (reduced) {
+    document.cookie = 'mascot_seen=1; expires=' + exp + '; path=/; SameSite=Lax';
+    return;
+  }
+
+  setTimeout(function() {
+    var wrap = document.createElement('div');
+    wrap.id = 'mascotWrap';
+    wrap.className = 'mascot-wrap';
+
+    var bubble = document.createElement('div');
+    bubble.className = 'mascot-bubble';
+    bubble.id = 'mascotBubble';
+    bubble.textContent = '嗨！我是東澳的小精靈～';
+
+    var body = document.createElement('div');
+    body.className = 'mascot-body';
+    body.textContent = '小精靈';
+    var img = new Image();
+    img.alt = '東澳小精靈';
+    img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:50%';
+    img.onload = function(){ body.innerHTML = ''; body.appendChild(img); body.style.cssText = 'background:transparent;box-shadow:none'; };
+    img.src = 'images/mascot.png';
+
+    wrap.appendChild(bubble);
+    wrap.appendChild(body);
+    document.body.appendChild(wrap);
+
+    wrap.classList.add('entering');
+
+    // 顯示第一句對話
+    setTimeout(function(){ bubble.classList.add('show'); }, 1000);
+
+    // 換第二句
+    setTimeout(function() {
+      bubble.style.opacity = '0';
+      setTimeout(function() {
+        bubble.textContent = '右上角是集點卡，記得來玩集點換扭蛋！';
+        bubble.style.opacity = '1';
+      }, 300);
+    }, 4000);
+
+    // 飛離 + 淡出
+    setTimeout(function() {
+      bubble.classList.remove('show');
+      setTimeout(function() {
+        wrap.classList.remove('entering');
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ wrap.classList.add('leaving'); }); });
+      }, 400);
+    }, 7000);
+
+    // 清除 DOM + 寫 cookie
+    setTimeout(function() {
+      if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+      document.cookie = 'mascot_seen=1; expires=' + exp + '; path=/; SameSite=Lax';
+    }, 9500);
+
+  }, 2000);
 })();
