@@ -209,6 +209,95 @@ async function handleSign(request, env) {
     return jsonResponse({ qr_payload: qrPayload });
 }
 
+// ── /api/track ─────────────────────────────────────────────────────────────────
+
+// NFC 計數：每次呼叫寫一筆獨立 log，避免 KV last-write-wins race condition
+async function handleTrack(request, env) {
+    let body;
+    try {
+        body = await request.json();
+    } catch {
+        return jsonResponse({ error: "請求格式錯誤" }, 400);
+    }
+
+    const source = String(body.source ?? "");
+    if (!/^nfc_[a-z0-9_]+$/.test(source)) {
+        return jsonResponse({ error: "invalid_source" }, 400);
+    }
+
+    const ts = nowISO();
+    const rand = Math.random().toString(36).slice(2, 6);
+    const kvKey = "nfc_log:" + source + ":" + ts + "_" + rand;
+
+    const logEntry = {
+        source,
+        timestamp: ts,
+        user_agent: request.headers.get("User-Agent") || "",
+    };
+
+    try {
+        // 保留 90 天後自動過期
+        await env.STAMP_CARDS.put(kvKey, JSON.stringify(logEntry), {
+            expirationTtl: 90 * 86400,
+        });
+    } catch {
+        // fire-and-forget：寫入失敗也回 204，不讓前端重試
+    }
+
+    return new Response(null, { status: 204, headers: corsHeaders() });
+}
+
+// ── /api/admin/stats ───────────────────────────────────────────────────────────
+
+// 統計 NFC 各來源的點擊數；用 KV list 翻頁避免 1000 筆上限
+async function handleAdminStats(request, env) {
+    const url = new URL(request.url);
+    const tok = url.searchParams.get("token");
+    if (!tok || tok !== env.ADMIN_TOKEN) {
+        return jsonResponse({ error: "unauthorized" }, 401);
+    }
+
+    const bySource = {};
+    const now = Date.now();
+    const todayMidnight = new Date();
+    todayMidnight.setUTCHours(0, 0, 0, 0);
+    const todayMs = todayMidnight.getTime();
+    const week7Ms = now - 7 * 24 * 60 * 60 * 1000;
+
+    let cursor = undefined;
+    do {
+        const listResult = await env.STAMP_CARDS.list({
+            prefix: "nfc_log:",
+            cursor,
+            limit: 1000,
+        });
+
+        for (const key of listResult.keys) {
+            // key 格式：nfc_log:{source}:{ISO_timestamp}_{rand4}
+            const parts = key.name.split(":");
+            if (parts.length < 3) continue;
+            const src = parts[1];
+            const tsStr = parts[2].split("_")[0];
+            const tsMs = new Date(tsStr).getTime();
+
+            if (!bySource[src]) {
+                bySource[src] = { total: 0, today: 0, last_7_days: 0, last_seen: null };
+            }
+            bySource[src].total += 1;
+            if (tsMs >= todayMs) bySource[src].today += 1;
+            if (tsMs >= week7Ms) bySource[src].last_7_days += 1;
+            if (!bySource[src].last_seen || tsStr > bySource[src].last_seen) {
+                bySource[src].last_seen = tsStr;
+            }
+        }
+
+        cursor = listResult.cursor;
+    } while (cursor);
+
+    const total = Object.values(bySource).reduce((s, v) => s + v.total, 0);
+    return jsonResponse({ by_source: bySource, total_records: total });
+}
+
 // ── /api/get_card ──────────────────────────────────────────────────────────────
 
 // 跨瀏覽器還原集點卡；使用者換瀏覽器時輸入 8 字元 card_id 取回進度
@@ -255,10 +344,12 @@ export default {
         const { pathname } = new URL(request.url);
         const method = request.method;
 
-        if (pathname === "/api/shop"     && method === "GET")  return handleShop(request, env);
-        if (pathname === "/api/stamp"    && method === "POST") return handleStamp(request, env);
-        if (pathname === "/api/sign"     && method === "POST") return handleSign(request, env);
-        if (pathname === "/api/get_card" && method === "POST") return handleGetCard(request, env);
+        if (pathname === "/api/shop"          && method === "GET")  return handleShop(request, env);
+        if (pathname === "/api/stamp"         && method === "POST") return handleStamp(request, env);
+        if (pathname === "/api/sign"          && method === "POST") return handleSign(request, env);
+        if (pathname === "/api/get_card"      && method === "POST") return handleGetCard(request, env);
+        if (pathname === "/api/track"         && method === "POST") return handleTrack(request, env);
+        if (pathname === "/api/admin/stats"   && method === "GET")  return handleAdminStats(request, env);
 
         return new Response("Not Found", { status: 404 });
     },
