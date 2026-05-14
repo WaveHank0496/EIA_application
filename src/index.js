@@ -1,35 +1,16 @@
 // 嚴格限定 GitHub Pages origin，防止其他來源繞過 CORS
 // const ALLOWED_ORIGIN = "https://wavehank0496.github.io";
-// 改宣告一個全域變數，等待 fetch 觸發時再賦值
-let CURRENT_ORIGIN = "";
-
-function corsHeaders() {
-    return {
-        "Access-Control-Allow-Origin": CURRENT_ORIGIN,
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-    };
-}
-// 改宣告一個全域變數，等待 fetch 觸發時再賦值
-let CURRENT_ORIGIN = "";
-
-function corsHeaders() {
-    return {
-        "Access-Control-Allow-Origin": CURRENT_ORIGIN,
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-    };
-}
 
 // 8 字元大寫英數字，與前端 generateCardId() 使用相同字符集
 const CARD_ID_RE = /^[A-Z0-9]{8}$/;
 const VALID_SHOPS = new Set(["shop_1", "shop_2", "shop_3", "shop_4", "shop_5"]);
+// 改宣告一個全域變數，等待 fetch 觸發時再賦值
+let CURRENT_ORIGIN = "";
 
 // ── 共用 helper ────────────────────────────────────────────────────────────────
-
 function corsHeaders() {
     return {
-        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+        "Access-Control-Allow-Origin": CURRENT_ORIGIN,
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
     };
