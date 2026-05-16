@@ -56,8 +56,8 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
 /* ══════ STAMP CARD ══════ */
 (function(){
   // 原本是寫死的 但為了做本地端測試
-  //var API_BASE = 'https://eia-application.jimhankliang.workers.dev';
-  var API_BASE = 'https://eia-application-preview.jimhankliang.workers.dev';
+  var API_BASE = 'https://eia-application.jimhankliang.workers.dev';
+  //var API_BASE = 'https://eia-application-preview.jimhankliang.workers.dev';
 
   // 自動判斷是否為本地開發環境
   // var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
