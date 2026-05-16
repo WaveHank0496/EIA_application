@@ -392,7 +392,8 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     .then(function(j) {
       contentEl.innerHTML =
         '<div id="sm-qr"></div>' +
-        '<p class="sm-qr-hint">QR Code 5 分鐘內有效，請儘速出示給扭蛋機掃描</p>';
+        '<p class="sm-qr-hint">QR Code 5 分鐘內有效，請儘速出示給扭蛋機掃描</p>' +
+        '<video class="sm-redeem-video" src="images/redeem.mp4" autoplay muted loop playsinline></video>';
       new QRCode(document.getElementById('sm-qr'), {text: j.qr_payload, width: 240, height: 240});
     })
     .catch(function() {
