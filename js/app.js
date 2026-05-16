@@ -56,7 +56,8 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
 /* ══════ STAMP CARD ══════ */
 (function(){
   // 原本是寫死的 但為了做本地端測試
-  var API_BASE = 'https://eia-application.jimhankliang.workers.dev';
+  //var API_BASE = 'https://eia-application.jimhankliang.workers.dev';
+  var API_BASE = 'https://eia-application-preview.jimhankliang.workers.dev';
 
   // 自動判斷是否為本地開發環境
   // var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
@@ -392,9 +393,20 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     .then(function(j) {
       contentEl.innerHTML =
         '<div id="sm-qr"></div>' +
-        '<p class="sm-qr-hint">QR Code 5 分鐘內有效，請儘速出示給扭蛋機掃描</p>' +
-        '<video class="sm-redeem-video" src="images/redeem.mp4" autoplay muted loop playsinline></video>';
+        '<p class="sm-qr-hint">QR Code 5 分鐘內有效，請儘速出示給扭蛋機掃描</p>';
       new QRCode(document.getElementById('sm-qr'), {text: j.qr_payload, width: 240, height: 240});
+
+      var overlay = document.createElement('div');
+      overlay.className = 'sm-video-overlay';
+      overlay.innerHTML = '<video class="sm-video-overlay-vid" src="images/redeem.mp4" autoplay muted playsinline></video>';
+      smPanel.appendChild(overlay);
+
+      overlay.querySelector('video').addEventListener('ended', function() {
+        overlay.classList.add('sm-video-overlay--out');
+        setTimeout(function() {
+          if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 400);
+      });
     })
     .catch(function() {
       renderRedeem(

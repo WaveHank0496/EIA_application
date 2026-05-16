@@ -333,7 +333,9 @@ em[lang="en"]{font-style:italic}
 
 #sm-qr{display:inline-block;margin:8px auto 14px;padding:14px;background:#fff;border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow)}
 .sm-qr-hint{color:var(--gold-muted);font-size:13px;font-weight:600;letter-spacing:.3px;margin-top:8px}
-.sm-redeem-video{display:block;width:100%;max-width:320px;margin:18px auto 0;border-radius:12px;object-fit:cover}
+.sm-video-overlay{position:absolute;inset:0;z-index:10;border-radius:inherit;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--ivory);transition:opacity .4s ease}
+.sm-video-overlay--out{opacity:0;pointer-events:none}
+.sm-video-overlay-vid{width:100%;height:100%;object-fit:cover}
 
 @media(max-width:480px){
   .sm-panel{padding:28px 16px 24px;border-radius:18px}
