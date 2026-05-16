@@ -464,7 +464,7 @@ em[lang="en"]{font-style:italic}
 .stamp-hint-close:hover{background:var(--cream);color:var(--dark)}
 .stamp-hint-msg{font-size:13px;font-weight:600;color:var(--dark);margin-bottom:4px;line-height:1.4}
 .stamp-hint-sub{font-size:11px;color:var(--teal);margin:0;font-weight:500}
-@media(max-width:860px){.stamp-hint{top:68px;right:14px;min-width:176px}}
+@media(max-width:860px){.stamp-hint{top:50px;left:139px;min-width:176px}}
 @media(max-width:480px){.stamp-hint{max-width:200px;right:10px}}
 
 /* ══════ MASCOT ══════ */
