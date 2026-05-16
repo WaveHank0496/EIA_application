@@ -630,7 +630,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
 
   var token = new URLSearchParams(location.search).get('shop');
   if (token) {
-    restoreDiv.style.display = 'none';
+    if (isInAppBrowser()) restoreDiv.style.display = 'none';
     var hasCookie = !!getCookie('card_id');
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
