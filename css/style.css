@@ -420,8 +420,8 @@ em[lang="en"]{font-style:italic}
 .sm-legend-dot--collected{background:var(--teal)}
 .sm-legend-dot--current{background:var(--gold)}
 
-@media(max-width:480px){.sm-pin-icon{width:34px;height:34px}.sm-pin-label{font-size:8px;max-width:56px}}
-@media(max-width:380px){.sm-pin-icon{width:28px;height:28px}.sm-pin-label{font-size:7px;max-width:46px;padding:1px 4px}}
+@media(max-width:480px){.sm-pin-icon{width:60px;height:60px}.sm-pin-label{font-size:8px;max-width:56px}}
+@media(max-width:380px){.sm-pin-icon{width:50px;height:50px}.sm-pin-label{font-size:7px;max-width:46px;padding:1px 4px}}
 @media(max-width:320px){.sm-pin-label{display:none}}
 
 /* ══════ CARD ID COPY ══════ */
