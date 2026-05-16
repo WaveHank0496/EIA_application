@@ -243,3 +243,82 @@ git push origin ui-enhance
 | `SHOP_TOKEN_1` ~ `SHOP_TOKEN_5` | 各店家 QR Code token（原本就有） | 已設定，不需改 |
 
 > 如果新增店家，需額外設定 `SHOP_TOKEN_6` 等。
+
+
+
+
+# 🧪 EIA Project：新版功能測試手冊 (Preview 版)
+
+✨ **一句話總結**：本手冊用於驗證 `ui-enhance` 分支在雲端預覽環境的功能完整性，確保前端 UI 與 Cloudflare Worker 後端對接無誤。
+
+---
+
+## 🛠️ 第一部分：開發者事前檢查 (SOP)
+在發送測試連結前，請確保以下環境已就緒：
+
+1. **後端 (Backend)**：
+   * 執行指令：`npx wrangler deploy --env preview`。
+   * 確認網址：`https://eia-application-preview.jimhankliang.workers.dev`。
+2. **前端 (Frontend)**：
+   * 檢查 `js/app.js`：`API_BASE` 必須指向上述的 `preview` 網址。
+   * 啟動服務：`python -m http.server 5500`。
+3. **雲端變數 (Cloudflare Dashboard)**：
+   * 進入 `preview` 版 Worker 設定。
+   * 確認已綁定 `STAMP_CARDS` KV 空間。
+   * 確認已設定 `SHOP_TOKEN_1` 環境變數。
+
+---
+
+## 🧪 第二部分：核心測試案例 (Test Cases)
+
+請引導測試者按照以下順序操作，並觀察結果：
+
+### 1. 正常集點流程 (Happy Path)
+* **操作網址**：`http://127.0.0.1:5500/index.html?shop=be8f985afe8f54bc03b2579273c208f8`
+* **檢查重點**：
+    * 標題是否正確顯示店家名稱 (自 KV 讀取)。
+    * 小精靈是否出現在地圖正確位置，且比例縮放正常。
+    * **Network 檢查**：API 請求應回傳 `200 OK`。
+
+### 2. 非法 Token 攔截測試
+* **操作網址**：`http://127.0.0.1:5500/index.html?shop=wrong_token_123`
+* **檢查重點**：
+    * 頁面是否顯示「認證失敗」或「查無此店家」。
+    * 應無法讀取到任何敏感的地圖座標資料。
+
+### 3. 強健性測試 (Robustness)
+* **操作**：直接連入 API 網址而不帶任何 `?shop=` 參數。
+* **檢查重點**：
+    * 後端應回傳 `400 Bad Request` 的 JSON 訊息。
+    * **嚴禁出現** `500 Internal Server Error` (白畫面)。
+
+---
+
+## ⚠️ 第三部分：疑難排解 (Troubleshooting)
+
+| 現象 | 可能原因 | 修正建議 |
+| :--- | :--- | :--- |
+| **顯示「集點失敗」** | **CORS 阻擋** | 檢查 `wrangler.toml` 的 `ALLOWED_ORIGIN` 是否為 `http://127.0.0.1:5500`。 |
+| **地圖載入緩慢** | **網路延遲** | 檢查本地端 Python Server 資源占用情況。 |
+| **500 錯誤再現** | **環境變數遺失** | 重新確認 `[env.preview.vars]` 是否有漏掉變數。 |
+
+---
+
+## ✅ 測試完成後的 Merge 指令 (備忘)
+
+Demo 結束並確認無誤後，請執行以下步驟回歸正式版：
+
+1. **還原設定**：
+   * 修改 `js/app.js`，將 `API_BASE` 切換回正式版網址。
+2. **合併代碼**：
+   ```bash
+   git checkout main
+   git merge ui-enhance
+   ```
+3. **正式發布**：
+   ```bash
+   npx wrangler deploy  # 部署至正式版環境
+   ```
+
+---
+*Note: 此手冊由台科大資工系學長整理，專供 ui-enhance 分支驗收使用。*

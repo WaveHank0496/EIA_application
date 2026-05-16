@@ -66,7 +66,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
   // var API_BASE = 'https://eia-application-preview.jimhankliang.workers.dev';
 
 
-  var REQUIRED_STAMPS = 3, COOKIE_DAYS = 30;
+  var REQUIRED_STAMPS = 3, COOKIE_DAYS = 3;
 
   // ── 店家設定（集中在這裡，方便修改）────────────────────────────────────────
   // pos: 百分比座標，x=左右(0左~100右)，y=上下(0上~100下)
@@ -82,11 +82,11 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
   */
   var SHOP_CONFIG = {
     // y 全部設為 50 (垂直置中)，x 從 10 到 90 等距散佈
-    shop_1: { name: '店家 A', pos: { x: 10, y: 50 }, icon: null },
-    shop_2: { name: '店家 B', pos: { x: 30, y: 50 }, icon: null },
-    shop_3: { name: '店家 C', pos: { x: 50, y: 50 }, icon: null },
-    shop_4: { name: '店家 D', pos: { x: 70, y: 50 }, icon: null },
-    shop_5: { name: '店家 E', pos: { x: 90, y: 50 }, icon: null },
+    shop_1: { name: '店家 A', pos: { x: 10, y: 50 }, icon: 'images/icons/1.png', iconEmpty: 'images/icons/1_gray.png' },
+    shop_2: { name: '店家 B', pos: { x: 30, y: 50 }, icon: 'images/icons/2.png', iconEmpty: 'images/icons/2_gray.png' },
+    shop_3: { name: '店家 C', pos: { x: 50, y: 50 }, icon: 'images/icons/3.png', iconEmpty: 'images/icons/3_gray.png' },
+    shop_4: { name: '店家 D', pos: { x: 70, y: 50 }, icon: 'images/icons/4.png', iconEmpty: 'images/icons/4_gray.png' },
+    shop_5: { name: '店家 E', pos: { x: 90, y: 50 }, icon: 'images/icons/5.png', iconEmpty: 'images/icons/5_gray.png' },
   };
 
   // ── 地圖底圖設定 ───────────────────────────────────────────────────────────
@@ -209,7 +209,8 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
 
       if (cfg.icon) {
         var img = document.createElement('img');
-        img.src = cfg.icon;
+        //img.src = cfg.icon;
+        img.src = stamped ? cfg.icon : (cfg.iconEmpty || cfg.icon);
         img.alt = cfg.name;
         img.className = 'sm-pin-icon-img';
         iconEl.appendChild(img);
@@ -742,7 +743,7 @@ document.querySelectorAll('.pgrid,.alt-grid,.top-grid,.card-grid,.gallery-grid')
     img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:50%';
     img.onload = function(){ body.innerHTML = ''; body.appendChild(img); body.style.cssText = 'background:transparent;box-shadow:none'; };
     //img.src = 'images/mascot.png';
-    img.src = 'images/mascot_test2.png'
+    img.src = 'images/mascot_test3.png'
 
     wrap.appendChild(bubble);
     wrap.appendChild(body);
