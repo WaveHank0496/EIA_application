@@ -88,7 +88,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .hbg3{background:linear-gradient(135deg,#3a2a1a 0%,#8b6f3a 40%,#c9a84c 100%)}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.3) 0%,rgba(0,0,0,.1) 40%,rgba(0,0,0,.4) 100%);z-index:1}
 .hero-content{position:relative;z-index:2;text-align:center;color:#fff;max-width:900px;padding:0 40px}
-.hero-tag{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.3);padding:8px 20px;border-radius:24px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:32px;color:rgba(255,255,255,.8)}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.3);padding:8px 20px;border-radius:24px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;color:rgba(255,255,255,.8)}
 .hero-tag .td{width:5px;height:5px;background:var(--gold);border-radius:50%}
 .hero-h{font-family:var(--fd);font-size:clamp(40px,7vw,88px);font-weight:300;line-height:1.15;letter-spacing:0;margin-bottom:24px}
 .hero-h em{font-style:normal;font-weight:400}
@@ -361,3 +361,177 @@ em[lang="en"]{font-style:italic}
 /* QR Code 生成動畫（之後可替換成更精緻的效果）*/
 @keyframes smQrReveal{0%{opacity:0;transform:scale(.65)}65%{transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
 #sm-qr{animation:smQrReveal .5s var(--ease) both}
+
+/* ══════ STAMP MAP ══════ */
+.sm-stamps{display:block;margin-bottom:10px}
+/* 外層：不剪裁，讓圖釘可以溢出到邊界外（北邊圖釘不會被切掉）*/
+/* 分東南西北
+.sm-map{position:relative;width:100%;border-radius:16px;overflow:visible}*/
+.sm-map {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: visible;
+  /* 加上以下兩行：強制解除 4:3 比例，並給定一個剛好容納圖釘的高度 */
+  aspect-ratio: auto !important;
+  height: 90px;
+}
+
+/* 背景層：在內層剪裁，確保底圖保持圓角 */
+/* 有一個色塊
+.sm-map-bg{position:absolute;inset:0;border-radius:16px;overflow:hidden;background:linear-gradient(160deg,#c8e6c9 0%,#b2dfdb 35%,#80cbc4 65%,#4db6ac 100%);box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.06),var(--shadow);z-index:0}*/
+.sm-map-bg{display: none;}
+.sm-map-bg::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(40deg,transparent,transparent 28px,rgba(255,255,255,.07) 28px,rgba(255,255,255,.07) 29px);pointer-events:none}
+
+.sm-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  z-index: 1;
+  transition: transform .25s var(--ease);
+  /* 加上這行：給予固定的向下補償值，彌補圖釘本身的高度 */
+  margin-top: 24px;
+}.sm-pin:hover{transform:translate(-50%,-100%) scale(1.15);z-index:10}
+
+.sm-pin-icon{width:40px;height:40px;border-radius:50% 50% 50% 0;rotate:-45deg;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:background .3s,box-shadow .3s,filter .3s;overflow:hidden;flex-shrink:0}
+.sm-pin-icon-inner{display:inline-block;rotate:45deg;font-size:10px;font-weight:700;line-height:1;text-align:center;letter-spacing:0;font-family:var(--fb);color:#fff;white-space:nowrap;max-width:34px;overflow:hidden}
+.sm-pin-icon-img{width:100%;height:100%;object-fit:cover;rotate:45deg}
+
+.sm-pin-check{position:absolute;top:0;left:50%;transform:translateX(-50%);width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.9);color:var(--teal-dark);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.15);z-index:2}
+
+.sm-pin-label{font-size:9px;font-weight:600;letter-spacing:.2px;white-space:nowrap;background:rgba(255,255,255,.88);backdrop-filter:blur(4px);padding:2px 6px;border-radius:4px;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.1);pointer-events:none;max-width:70px;overflow:hidden;text-overflow:ellipsis}
+
+.sm-pin--empty .sm-pin-icon{background:rgba(178,223,219,.5);border:2px dashed rgba(13,115,119,.35);filter:grayscale(.7) opacity(.7)}
+.sm-pin--empty .sm-pin-label{color:var(--text-muted)}
+.sm-pin--collected .sm-pin-icon{background:var(--teal);border:2px solid var(--teal-dark);box-shadow:0 4px 16px rgba(13,115,119,.45)}
+.sm-pin--collected .sm-pin-label{color:var(--teal-dark);font-weight:700}
+.sm-pin--current .sm-pin-icon{background:var(--gold);border:2px solid var(--gold-muted);box-shadow:0 4px 20px rgba(201,168,76,.6);animation:smPinPop .5s var(--ease)}
+.sm-pin--current .sm-pin-label{color:var(--gold-muted);font-weight:700}
+
+@keyframes smPinPop{0%{transform:scale(.3) rotate(-45deg)}60%{transform:scale(1.2) rotate(-45deg)}100%{transform:scale(1) rotate(-45deg)}}
+
+.sm-map-legend{display:flex;justify-content:center;gap:16px;margin-top:10px;margin-bottom:18px;font-size:11px;color:var(--text-muted)}
+.sm-map-legend span{display:flex;align-items:center;gap:5px}
+.sm-legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+.sm-legend-dot--empty{background:rgba(13,115,119,.2);border:1.5px dashed var(--teal)}
+.sm-legend-dot--collected{background:var(--teal)}
+.sm-legend-dot--current{background:var(--gold)}
+
+@media(max-width:480px){.sm-pin-icon{width:34px;height:34px}.sm-pin-label{font-size:8px;max-width:56px}}
+@media(max-width:380px){.sm-pin-icon{width:28px;height:28px}.sm-pin-label{font-size:7px;max-width:46px;padding:1px 4px}}
+@media(max-width:320px){.sm-pin-label{display:none}}
+
+/* ══════ CARD ID COPY ══════ */
+.sm-cid-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px}
+.sm-cid-copy{width:34px;height:34px;border-radius:8px;border:1.5px solid var(--cream);background:var(--ivory);color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s var(--ease);flex-shrink:0}
+.sm-cid-copy svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:opacity .15s}
+.sm-cid-copy:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-light)}
+.sm-cid-copy.copied{border-color:var(--teal);background:var(--teal);color:#fff}
+.sm-cid-copied-txt{font-size:9px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+
+/* ══════ FIRST-VISIT MODAL ══════ */
+.sm-fv{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0}
+.sm-fv-title{font-family:var(--fd);font-size:17px;font-weight:400;color:var(--dark);letter-spacing:.3px}
+.sm-fv-sub{font-size:13px;color:var(--text-light);font-weight:300;text-align:center}
+/* PRIMARY：我有集點卡編號 */
+.sm-fv-restore-btn{width:100%;font-size:14px;padding:16px 24px;border-radius:12px}
+.sm-fv-restore-btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.sm-fv-divider{font-size:11px;color:var(--text-muted);letter-spacing:1px;margin:2px 0}
+/* SECONDARY：建立新的集點卡（小字連結） */
+.sm-fv-new{background:none;border:none;color:var(--text-muted);font-size:12px;text-decoration:underline;text-underline-offset:2px;padding:4px 8px;cursor:pointer;font-family:var(--fb);transition:color .2s}
+.sm-fv-new:hover:not(:disabled){color:var(--teal)}
+.sm-fv-new:disabled{opacity:.4;cursor:not-allowed}
+.sm-fv-restore-wrap{width:100%;display:flex;flex-direction:column;gap:8px;padding:12px;background:var(--ivory2);border-radius:10px;border:1px solid var(--border)}
+.sm-fv-input{width:100%;padding:10px 12px;border:1.5px solid var(--cream);border-radius:8px;font-size:13px;font-family:monospace;outline:none;box-sizing:border-box;transition:border-color .2s}
+.sm-fv-input:focus{border-color:var(--teal)}
+.sm-fv-submit{width:100%;padding:12px;font-size:13px}
+.sm-fv-err{font-size:12px;min-height:16px;text-align:center;margin:0}
+.sm-fv-inapp-warn{font-size:12px;color:var(--gold-muted);background:var(--gold-light);border-radius:8px;padding:10px 14px;text-align:center;line-height:1.6;width:100%}
+.sm-fv-warn{display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0}
+.sm-fv-warn-hint{font-size:13px;color:var(--text-light);text-align:center}
+
+/* ══════ STAMP HINT TOOLTIP ══════ */
+.stamp-hint{position:fixed;top:80px;right:48px;z-index:1100;background:var(--ivory);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.14),0 0 0 1px var(--border);padding:14px 40px 12px 16px;min-width:196px;max-width:240px;opacity:0;transform:translateY(-8px);transition:opacity .3s var(--ease),transform .3s var(--ease);pointer-events:none}
+.stamp-hint::before{content:'';position:absolute;top:-7px;right:18px;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:7px solid var(--ivory);filter:drop-shadow(0 -1px 1px rgba(0,0,0,.08))}
+.stamp-hint.show{opacity:1;transform:none;pointer-events:auto}
+.stamp-hint-close{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:6px;border:none;background:none;color:var(--text-muted);font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}
+.stamp-hint-close:hover{background:var(--cream);color:var(--dark)}
+.stamp-hint-msg{font-size:13px;font-weight:600;color:var(--dark);margin-bottom:4px;line-height:1.4}
+.stamp-hint-sub{font-size:11px;color:var(--teal);margin:0;font-weight:500}
+@media(max-width:860px){.stamp-hint{top:68px;right:14px;min-width:176px}}
+@media(max-width:480px){.stamp-hint{max-width:200px;right:10px}}
+
+/* ══════ MASCOT ══════ */
+.mascot-wrap{position:fixed;top:70%;right: 40px;transform:translateY(-50%);z-index:8000;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:10px}
+.mascot-bubble {
+  background: #fff;
+  border-radius: 16px 16px 16px 4px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dark);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, .12);
+  text-align: center;
+  line-height: 1.5;
+  opacity: 0;
+  transition: opacity .4s var(--ease);
+  order: -1;
+  width: 220px;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}.mascot-bubble.show{opacity:1}
+.mascot-body{width:120px;height:120px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;font-family:var(--fb);box-shadow:0 8px 28px rgba(13,115,119,.4);flex-shrink:0}
+/* 從右下角往左上飛到指定位置 */
+@keyframes mascotEnter {
+  from {
+    transform: translate(20vw, 50vh);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(-50%);
+    opacity: 1;
+  }
+}
+
+/* 從目前位置往右上角飛離 */
+@keyframes mascotLeave {
+  from {
+    transform: translateY(-50%);
+    opacity: 1;
+  }
+
+  to {
+    transform: translate(20vw, -44vh);
+    opacity: 0;
+  }
+}.mascot-wrap.entering{animation:mascotEnter 1s cubic-bezier(.34,1.4,.64,1) forwards}
+.mascot-wrap.leaving{animation:mascotLeave 1.5s cubic-bezier(.4,0,.8,1) forwards}
+
+/*為了眼睛不好的人
+@media(prefers-reduced-motion:reduce){.mascot-wrap{display:none!important}}*/
+@media(max-width: 480px) {
+  .mascot-wrap {
+    right: 16px;
+    /* 縮小手機版的右側邊距，把空間還給畫面 */
+  }
+
+  .mascot-body {
+    width: 64px;
+    height: 64px;
+  }
+
+  .mascot-bubble {
+    width: 180px;
+    /* 手機版使用較小的固定寬度 */
+    min-height: 54px;
+    /* 高度等比縮放，防禦文字溢位 */
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+}
